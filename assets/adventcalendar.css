@@ -1,0 +1,45 @@
+@charset("utf-8");
+
+/**
+ *	Developped with love by Nicolas Devenet <nicolas[at]devenet.info>
+ *	Code hosted on github.com/nicolabricot
+ */
+
+body {
+	font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 300;
+}
+.navbar { font-weight: 400; }
+p { font-size: 30px; line-height: 35px; }
+.text-center { text-align: center; }
+.container-days {
+	max-width: 700px;
+	margin: 30px auto;
+}
+.day-row {
+	display: inline-block;
+	width: 100px;
+	height: 100px;
+	margin: 2px 5px;
+	background: #cdcdcd;
+	position: relative;
+	overflow: hidden;
+}
+.day-row span {
+	display: block;
+	position: absolute;
+	bottom: -12px;
+	right: -3px;
+	font-size: 80px;
+	line-height: 80px;
+	font-weight: 700;
+	letter-spacing: -4px;
+	color: #f6f6f6;
+}
+.day-row.active.day-color-one { background: #5FC462; }
+.day-row.active.day-color-two { background: #EDD360; }
+.day-row.active.day-color-three { background: #C48CE8; }
+.day-row.active.day-color-four { background: #49C7FF; }
+
+footer { margin: 20px 0; }
+footer p { color: #777; }
