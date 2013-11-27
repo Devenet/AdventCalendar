@@ -20,7 +20,7 @@ if (file_exists('settings.json')) {
 else { die('<div><strong>Oups!</strong> Settings file not found.</div>'); }
 
 // other constants to be used
-define('VERSION', '0.3.0');
+define('VERSION', '0.3.1');
 define('URL_DAY', 'day');
 define('CALENDAR_FILE', './photos/calendar.json');
 
@@ -148,7 +148,7 @@ abstract class Advent {
 		if (self::isActiveDay($day-1) && ($day-1)>=0) { $result .= '"><a href="?'. URL_DAY .'='. $day .'" title="yesterday" class="tip" data-placement="right">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-left"></i></a></li><li class="next';
-		if (self::isActiveDay($day+1)) { $result .= '"><a href="?'. URL_DAY .'='. ($day+2) .'" title="tomorrow" class="tip" data-placement="left">'; }
+		if (self::isActiveDay($day+1) && ($day+1)<self::DAYS) { $result .= '"><a href="?'. URL_DAY .'='. ($day+2) .'" title="tomorrow" class="tip" data-placement="left">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
 		
