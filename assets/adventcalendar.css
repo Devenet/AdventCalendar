@@ -16,6 +16,7 @@ body {
 	overflow: hidden;
 	background: url(tree_bark.png) left top repeat fixed;
 }
+.alternate-background { background: url(wave_grid.png) left top repeat fixed; }
 hr { border-color: #cdcdcd; }
 nav.navbar { margin-bottom: 0; }
 .navbar { font-weight: 400; }

@@ -13,11 +13,14 @@ if (file_exists('settings.json')) {
 
     define('TITLE', $settings->title);
     define('YEAR', $settings->year);
+    
+    // do the user want an other background?
+    if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 }
 else { die('<div><strong>Oups!</strong> Settings file not found.</div>'); }
 
 // other constants to be used
-define('VERSION', '0.2.0');
+define('VERSION', '0.3.0');
 define('URL_DAY', 'day');
 define('CALENDAR_FILE', './photos/calendar.json');
 
@@ -235,7 +238,7 @@ if (empty($template)) {
 		</div>
 		</nav>
 		
-		<div class="background">
+		<div class="background<?php if(defined('ALTERNATE_BACKGROUND')) { echo ' alternate-background'; } ?>">
 		<?php
 			echo $template;
 		?>
