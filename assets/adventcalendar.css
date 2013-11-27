@@ -17,7 +17,7 @@ body {
 	background: url(tree_bark.png) left top repeat fixed;
 }
 .alternate-background { background: url(wave_grid.png) left top repeat fixed; }
-hr { border-color: #cdcdcd; }
+hr, .page-header { border-color: #cdcdcd; }
 nav.navbar { margin-bottom: 0; }
 .navbar { font-weight: 400; }
 p, .text { font-size: 30px; line-height: 35px; }
@@ -82,6 +82,9 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 .day p.legend { font-size: 25px; }
 .day .text { margin: 30px auto 50px; }
 .day .pager { font-weight: normal; margin-top: 50px; }
+
+.about .page-header { margin: 20px 0; }
+.about .page-header small { margin-left: 10px; }
 
 footer { margin: 0 0 20px 0; }
 footer hr { margin-top: 0px; }
