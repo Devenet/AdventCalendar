@@ -79,7 +79,7 @@ abstract class Advent {
 	}
 	
 	function acceptDay($day) {
-		return $day >= 0 && $day <= self::DAYS;
+		return $day >= 0 && $day < self::DAYS;
 	}
 	
 	function isActiveDay($day) {
