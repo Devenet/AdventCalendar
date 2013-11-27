@@ -8,38 +8,45 @@
 body {
 	font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 300;
+	background: url(tree_bark.png) left top repeat fixed;
 }
+hr { border-color: #cdcdcd; }
 .navbar { font-weight: 400; }
 p { font-size: 30px; line-height: 35px; }
 .text-center { text-align: center; }
+
+.day-row, .day-row span, .footer a { -webkit-transition:all linear 0.2s; -moz-transition:all linear 0.2s; -o-transition:all linear 0.2s; transition:all linear 0.2s; }
+
 .container-days {
-	max-width: 700px;
+	max-width: 735px;
 	margin: 30px auto;
 }
 .day-row {
 	display: inline-block;
 	width: 100px;
 	height: 100px;
-	margin: 2px 5px;
-	background: #cdcdcd;
+	margin: 6px 8px;
+	background: #bebebe;
 	position: relative;
 	overflow: hidden;
 }
+a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-transform:scale(1.1); transform:scale(1.1); border-radius: 10px; }
+div.day-row:hover span { color: #db4545; cursor: default; }
 .day-row span {
 	display: block;
 	position: absolute;
-	bottom: -12px;
-	right: -3px;
-	font-size: 80px;
-	line-height: 80px;
+	bottom: -8px;
+	right: 1px;
+	font-size: 60px;
+	line-height: 60px;
 	font-weight: 700;
 	letter-spacing: -4px;
-	color: #f6f6f6;
+	color: #fff;
 }
-.day-row.active.day-color-one { background: #5FC462; }
-.day-row.active.day-color-two { background: #EDD360; }
-.day-row.active.day-color-three { background: #C48CE8; }
-.day-row.active.day-color-four { background: #49C7FF; }
+.day-row.active.day-color-1 { background: #5FC462; }
+.day-row.active.day-color-2 { background: #EDD360; }
+.day-row.active.day-color-3 { background: #C48CE8; }
+.day-row.active.day-color-4 { background: #49C7FF; }
 
 footer { margin: 20px 0; }
-footer p { color: #777; }
+footer p a { color: #777; }
