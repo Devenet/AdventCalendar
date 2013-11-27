@@ -7,27 +7,48 @@
 
 error_reporting(-1);
 
+// load settings from file
 if (file_exists('settings.json')) {
     $settings = json_decode(file_get_contents('settings.json'));
 
     define('TITLE', $settings->title);
     define('YEAR', $settings->year);
+    if (empty($settings->keypass)) { die('<div><strong>Oups!</strong> Invalid syntax in settings file: passkey not found.</div>'); }
+    define('KEYPASS', $settings->keypass);
+    
 }
-else {
-    echo 'Configuration file not found';
-    exit();
-}
+else { die('<div><strong>Oups!</strong> Settings file not found.</div>'); }
 
+// other constants to be used
 define('VERSION', '0.1.0');
+define('PHPPREFIX','<?php header("Location: ./"); exit(); /* ');
+define('PHPSUFFIX',' */ ?>');
+define('TOKENS_FILE', 'tokens.php');
+define('URL_DAY', 'day');
+define('URL_SEPARATOR', '/');
 
+// is the directory writable ?
+if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
+// are photos deny from web access ?
+if (!is_file('photos/.htaccess')) { file_put_contents('photos/.htaccess', 'Deny from all'); }
+if (!is_file('photos/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
+// have we the url token file loaded and up to date ?
+if (!is_file(TOKENS_FILE)) { Advent::generateTokens(); }
+else { Advent::loadTokens(); }
+
+/*
+ *	Advent class
+ */
 abstract class Advent {
 	
 	const DAYS = 24;
 	const BEFORE_ADVENT = -1;
 	const CURRENT_ADVENT = 0;
 	const AFTER_ADVENT = 1;
-	const BEGIN_DATE = 1201;
+	const BEGIN_DATE = 1101;
 	const END_DATE = 1224;
+	
+	private static $tokens;
 	
 	function state() {
 		$now = date('Ymd');
@@ -40,38 +61,51 @@ abstract class Advent {
 		return self::CURRENT_ADVENT;
 	}
 	
-	private function day_row_class($day) {
+	private function isActiveDay($day) {
+		$state = self::state();
+		return ($state == self::CURRENT_ADVENT && $day < date('d')) || $state == self::AFTER_ADVENT;
+	}
+	
+	private function getDayColorClass($day, $active = FALSE) {
 		$result = '';
 		// is the day active ?
-		$state = self::state();
-		if (($state == self::CURRENT_ADVENT && $day < date('d')) || $state == self::AFTER_ADVENT) {
-			$result .= 'active ';
-		}
-		
+		if ($active) { $result .= 'active '; }		
 		// set a color for the background
-		switch ($day%4) {
-			case 0:
-				$result .= 'day-color-one';
-				break;
-			case 1:
-				$result .= 'day-color-two';
-				break;
-			case 2:
-				$result .= 'day-color-three';
-				break;
-			case 3:
-			default:
-				$result .= 'day-color-four';
-		}
+		$result .= 'day-color-'.($day%4 + 1);
 		return $result;
 	}
 	
 	function daysList() {
-		$result = '';
+		$result = '<div class="container container-days">';
 		for ($i=0; $i<self::DAYS; $i++) {
-			$result .= '<div class="day-row '. self::day_row_class($i). '"><span>'. ($i+1) .'</span></div>';
+			$active = self::isActiveDay($i);
+			if ($active) { $result .= '<a href="?'. URL_DAY .'='. ($i+1).URL_SEPARATOR. self::$tokens[$i] .'" title="Day '. ($i+1) .'"'; }
+			else { $result .= '<div'; }
+			$result .= ' class="day-row '. self::getDayColorClass($i, $active) .'"><span>'. ($i+1) .'</span>';
+			if ($active) { $result .= '</a>'; }
+			else { $result .= '</div>'; }
 		}
-		return $result;
+		return $result.'</div>';
+	}
+	
+	function generateTokens() {
+		$tokens = array();
+		$tokens['verification'] = sha1(KEYPASS);
+		for ($i=0; $i<self::DAYS; $i++) { $tokens[$i] = md5(KEYPASS.$i.KEYPASS); }
+		file_put_contents(TOKENS_FILE, PHPPREFIX.serialize($tokens).PHPSUFFIX);
+		if (!is_file(TOKENS_FILE)) { die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>'); }
+		self::$tokens = $tokens;
+	}
+	
+	function loadTokens() {
+		self::$tokens = unserialize(substr(file_get_contents(TOKENS_FILE),strlen(PHPPREFIX),-strlen(PHPSUFFIX)));
+		if ($tokens['verification'] != sha1(KEYPASS)) { self::generateTokens(); }
+	}
+	
+	function isActiveLink($link) {
+		$link = explode(URL_SEPARATOR, $link);
+		$link_day = $link[0]-1;
+		return ($link_day >= 0 && $link_day <= self::DAYS) && self::isActiveDay($link_day);
 	}
 		
 }
@@ -117,24 +151,40 @@ abstract class Advent {
 		</ul>
 		</div><!-- /.navbar-collapse -->
 		</div>
-		</nav>		
+		</nav>
 
-		<div class="container container-days">
+		
 		<?php
-			echo Advent::daysList();	
+		
+		// nothing asked, display homepage
+		if (empty($_GET)) {
+			echo Advent::daysList();			
+		}
+		// want to display a day
+		if (isset($_GET['day'])) {
+			if (Advent::isActiveLink(htmlspecialchars($_GET['day']))) {
+				
+			}
+			else {
+				
+			}
+		}
+			
 		?>
-		</div>
 
 		
 		<hr />
-		<footer class="container">
-			<p class="pull-right"><i class="glyphicon glyphicon-tree-conifer"></i></p>
+		<footer>
+		<div class="container">
+			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="top" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
 		
 			Advent Calendar &middot; Version <?php echo VERSION; ?>
 			<br />Developped with love by <a href="http://devenet.info" rel="external">Nico</a>.
+		</div>
 		</footer>
 		
     	<script src="https://code.jquery.com/jquery.js"></script>
     	<script src="assets/bootstrap.min.js"></script>
+    	<script src="assets/adventcalendar.js"></script>
 	</body>
 </html>
