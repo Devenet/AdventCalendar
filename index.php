@@ -5,11 +5,18 @@
  *	Code hosted on github.com/nicolabricot
  */
 
-error_reporting(-1);
+error_reporting(0);
+
+// constants to be used
+define('VERSION', '0.4.0');
+define('URL_DAY', 'day');
+define('PRIVATE_FOLDER', './private');
+define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
+define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 
 // load settings from file
-if (file_exists('settings.json')) {
-    $settings = json_decode(file_get_contents('settings.json'));
+if (file_exists(SETTINGS_FILE)) {
+    $settings = json_decode(file_get_contents(SETTINGS_FILE));
 
     define('TITLE', $settings->title);
     define('YEAR', $settings->year);
@@ -19,17 +26,11 @@ if (file_exists('settings.json')) {
 }
 else { die('<div><strong>Oups!</strong> Settings file not found.</div>'); }
 
-// other constants to be used
-define('VERSION', '0.3.1');
-define('URL_DAY', 'day');
-define('PRIVATE_FOLDER', './private');
-define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
-
 // is the directory writable ?
 if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
-// is the private folder already created?
-if (!is_dir(PRIVATE_FOLDER)) { mkdir(PRIVATE_FOLDER,0705); chmod($_CONFIG['data'],0705); }
-// are photos deny from web access ?
+// is the private folder already created? yes, with a .htaccess file
+/*if (!is_dir(PRIVATE_FOLDER)) { mkdir(PRIVATE_FOLDER,0705); chmod($_CONFIG['data'],0705); }*/
+// are photos deny from web access? [just in case]
 if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/.htaccess', 'Deny from all'); }
 if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 
