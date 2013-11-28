@@ -215,7 +215,7 @@ if (empty($template)) {
 		<link rel="icon" type="image/png" href="assets/favicon.png" />
 		
 		<link href="assets/bootstrap.min.css" rel="stylesheet">
-		<link href='//fonts.googleapis.com/css?family=Lato:300,400,700' rel='stylesheet' type='text/css'>
+		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 		<link href="assets/adventcalendar.css" rel="stylesheet">
 
 	</head>
@@ -259,9 +259,8 @@ if (empty($template)) {
 		</div>
 		</footer>
 		
-    	<script src="https://code.jquery.com/jquery.js"></script>
+    	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     	<script src="assets/bootstrap.min.js"></script>
-    	<script src="assets/snowfall.min.js"></script>
     	<script src="assets/adventcalendar.js"></script>
 	</body>
 </html>
