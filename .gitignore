@@ -1,3 +1,5 @@
 settings.json
-photos/*
+private/*.jpg
+private/*.jpeg
+private/calendar.json
 tokens.php

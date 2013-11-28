@@ -22,13 +22,16 @@ else { die('<div><strong>Oups!</strong> Settings file not found.</div>'); }
 // other constants to be used
 define('VERSION', '0.3.1');
 define('URL_DAY', 'day');
-define('CALENDAR_FILE', './photos/calendar.json');
+define('PRIVATE_FOLDER', './private');
+define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 
 // is the directory writable ?
 if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
+// is the private folder already created?
+if (!is_dir(PRIVATE_FOLDER)) { mkdir(PRIVATE_FOLDER,0705); chmod($_CONFIG['data'],0705); }
 // are photos deny from web access ?
-if (!is_file('photos/.htaccess')) { file_put_contents('photos/.htaccess', 'Deny from all'); }
-if (!is_file('photos/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
+if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/.htaccess', 'Deny from all'); }
+if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 
 /*
  *	Core classes
@@ -45,7 +48,7 @@ abstract class Image {
 				// in case of .jpg or .jpeg file is not found
 				if (! self::exists($day.$extension)) { die('<div><strong>Oups!</strong> Unable to load photo.</div>'); }
 			}
-			$photo = file_get_contents('./photos/'.$day.$extension);
+			$photo = file_get_contents(PRIVATE_FOLDER.'/'.$day.$extension);
 			header('Content-type: image/jpeg');
 			exit($photo);
 		}
@@ -54,7 +57,7 @@ abstract class Image {
 	}
 	
 	private function exists($file) {
-		return file_exists('./photos/'.$file);
+		return file_exists(PRIVATE_FOLDER.'/'.$file);
 	}
 }
  
