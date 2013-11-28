@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '0.4.0');
+define('VERSION', '1.0.0');
 define('URL_DAY', 'day');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
@@ -24,7 +24,7 @@ if (file_exists(SETTINGS_FILE)) {
     // do the user want an other background?
     if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 }
-else { die('<div><strong>Oups!</strong> Settings file not found.</div>'); }
+else { die('<!doctype html><html><head><title>Advent Calendar</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
 // is the directory writable ?
 if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
@@ -231,7 +231,7 @@ if (empty($template)) {
 		  <span class="icon-bar"></span>
 		  <span class="icon-bar"></span>
 		</button>-->
-		<a class="navbar-brand tip" href="./" title="home" data-placement="right"><?php echo TITLE; ?></a>
+		<a class="navbar-brand tip" href="./" title="home" data-placement="right"><i class="glyphicon glyphicon-home"></i> <?php echo TITLE; ?></a>
 		</div>
 		
 		<div class="collapse navbar-collapse" id="navbar-collapse">
@@ -252,8 +252,10 @@ if (empty($template)) {
 		<hr />
 		<div class="container">
 			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
-			Advent Calendar &middot; Version <?php echo VERSION; ?>
-			<br />Developped with love by <a href="http://devenet.info" rel="external">Nico</a>.
+			<div class="notice">
+				<a href="https://github.com/nicolabricot/AdventCalendar" rel="external">Advent Calendar</a> &middot; Version <?php echo VERSION; ?>
+				<br />Developped with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
+			</div>
 		</div>
 		</footer>
 		
