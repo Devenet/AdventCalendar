@@ -4,6 +4,8 @@ Advent Calender is a very light web application to show a photo and its legend p
 It’s written in PHP, use last web technologies, and proud to not support old versions of IE.
 
 
+![Home of Advent Calendar](adventcalendar.jpg)
+
 ***
 
 ## Installation
@@ -41,6 +43,8 @@ For example:
         }
 }
 ```
+
+![A day with title, legend and text](adventcalendar-day.jpg)
 
 ###Oups, problems?
 
