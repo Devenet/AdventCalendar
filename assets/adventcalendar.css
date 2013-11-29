@@ -32,6 +32,7 @@ p, .text { font-size: 30px; line-height: 35px; }
 h1, h2, h3 { font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .day-row, .day-row span, .footer a, .error a.illustration, footer p a { -webkit-transition:all linear 0.2s; -moz-transition:all linear 0.2s; -o-transition:all linear 0.2s; transition:all linear 0.2s; }
 .espace-top { margin-top: 20px; }
+.espace-lg { margin-top: 50px; margin-bottom: 50px; }
 
 .days {
 	max-width: 735px;
@@ -87,7 +88,11 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 .about { margin-bottom: 20px; }
 .about .page-header { margin: 20px 0; }
 .about .page-header small { margin-left: 10px; }
-.about h2 i { font-size: 25px; }
+.about h2 i { font-size: 25px; margin-right: 5px; }
+.about h2 i.glyphicon-search { color: #49C7FF; }
+.about h2 i.glyphicon-heart { color: #5FC462; }
+.about h2 i.glyphicon-exclamation-sign { color: #C48CE8; }
+.about h2 i.glyphicon-wrench { color: #EDD360; }
 .about p { font-size: 20px; line-height: 24px; }
 .about p code { font-size: 17px; font-family: Consolas,Monaco,Menlo,"Courier New",monospace; }
 .about .problems strong { font-weight: 400; }
