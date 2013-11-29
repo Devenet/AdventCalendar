@@ -83,7 +83,7 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 .day img { margin: 15px auto 5px; font-size: 20px; line-height: 40px; }
 .day p.legend { font-size: 25px; }
 .day .text { margin: 30px auto 50px; }
-.day .pager { font-weight: normal; margin-top: 50px; }
+.day .pager { font-weight: normal; margin-top: 40px; }
 
 .about { margin-bottom: 20px; }
 .about .page-header { margin: 20px 0; }
