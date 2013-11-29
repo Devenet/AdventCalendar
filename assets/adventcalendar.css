@@ -31,6 +31,7 @@ p, .text { font-size: 30px; line-height: 35px; }
 
 h1, h2, h3 { font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .day-row, .day-row span, .footer a, .error a.illustration, footer p a { -webkit-transition:all linear 0.2s; -moz-transition:all linear 0.2s; -o-transition:all linear 0.2s; transition:all linear 0.2s; }
+.font-normal { font-weight: 400; }
 .espace-top { margin-top: 20px; }
 .espace-lg { margin-top: 50px; margin-bottom: 50px; }
 

@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.0.0');
+define('VERSION', '1.1.0');
 define('URL_DAY', 'day');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
@@ -20,6 +20,9 @@ if (file_exists(SETTINGS_FILE)) {
 
     define('TITLE', $settings->title);
     define('YEAR', $settings->year);
+    
+    // is it a private calendar?
+    if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
     
     // do the user want an other background?
     if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
@@ -166,19 +169,62 @@ abstract class Advent {
 }
 
 /*
+ * Session managment
+ */
+
+if (defined('PASSKEY')) {
+	session_start();
+	
+	// want to log out
+	if (isset($_GET['logout'])) {
+		$_SESSION['welcome'] = FALSE;
+		session_destroy();
+		header('Location: ./');
+		exit();
+	}
+	
+	// want to log in
+	if (isset($_POST['pass']) && !empty($_POST['pass'])) {
+		if ($_POST['pass'] == PASSKEY) {
+			$_SESSION['welcome'] = TRUE;
+			header('Location: ./');
+			exit();
+		}
+	}
+	
+	// not logged in: we ask passkey
+	if (!isset($_SESSION['welcome']) || !$_SESSION['welcome']) {
+		$loginRequested = TRUE;
+	}
+}
+
+
+/*
  * Load template
  */
  
-if (isset($_GET['photo'])) { Image::get($_GET['photo']-1); }
-
 $template = NULL;
 
+// need to display log form?
+if (defined('PASSKEY') && isset($loginRequested)) {
+	$template = '
+	<div class="container text-center">
+		<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
+		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p>	
+		<form method="post" role="form" class="espace-lg form-inline">
+			<div class="form-group"><input type="password" name="pass" id="pass" class="form-control input-lg" autofocus required /></div>
+			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-eye-open"></i></button>
+		</form>
+	</div>';
+}
+// want to see a photo ?
+else if (isset($_GET['photo'])) { Image::get($_GET['photo']-1); }
 // nothing asked, display homepage
-if (empty($_GET)) {
+else if (empty($_GET)) {
 	$template = Advent::getDays();		
 }
 // want to display a day
-if (isset($_GET['day'])) {
+else if (isset($_GET['day'])) {
 	$day = $_GET['day'] - 1;
 	if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
 	if (Advent::isActiveDay($day)) {
@@ -187,7 +233,7 @@ if (isset($_GET['day'])) {
 	else { $template = Advent::bePatient($day); }
 }
 
-// want to display about page
+// want to display about page [no need to be logged in to access]
 if (isset($_GET['about'])) {
 	// if ugly URL
 	if (!empty($_GET['about'])) { header('Location: ./?about'); exit(); }
@@ -237,6 +283,9 @@ if (empty($template)) {
 		<div class="collapse navbar-collapse" id="navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
 		  <li><a href="./?about" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> Advent Calendar</a></li>
+		  <?php
+		  	if (defined('PASSKEY') && isset($_SESSION['welcome'])) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+		  ?>
 		</ul>
 		</div>
 		</div>
