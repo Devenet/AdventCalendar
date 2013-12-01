@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.1.0');
+define('VERSION', '1.1.1');
 define('URL_DAY', 'day');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
@@ -173,6 +173,9 @@ abstract class Advent {
  */
 
 if (defined('PASSKEY')) {
+	// for calendars on same server, set a different cookie name based on the script path
+	session_name(md5($_SERVER['SCRIPT_NAME']));
+	
 	session_start();
 	
 	// want to log out
