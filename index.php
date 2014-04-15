@@ -53,7 +53,11 @@ abstract class Image {
 			if (! self::exists($day.$extension)) {
 				$extension = '.jpeg';
 				// in case of .jpg or .jpeg file is not found
-				if (! self::exists($day.$extension)) { die('<div><strong>Oups!</strong> Unable to load photo.</div>'); }
+				if (! self::exists($day.$extension)) {
+					// enhancement #8: use a default image when not found
+					header('Content-type: image/png');
+					exit(file_get_contents('./assets/404.png'));
+				}
 			}
 			$photo = file_get_contents(PRIVATE_FOLDER.'/'.$day.$extension);
 			header('Content-type: image/jpeg');
