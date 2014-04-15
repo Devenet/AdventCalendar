@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.1.1');
+define('VERSION', '1.1.2-dev');
 define('URL_DAY', 'day');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
@@ -306,7 +306,7 @@ if (empty($template)) {
 			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
 			<div class="notice">
 				<a href="https://github.com/nicolabricot/AdventCalendar" rel="external">Advent Calendar</a> &middot; Version <?php echo VERSION; ?>
-				<br />Developped with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
+				<br />Developed with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
 			</div>
 		</div>
 		</footer>
