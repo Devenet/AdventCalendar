@@ -1,8 +1,8 @@
 <?php
 
 /**
- *	Developped with love by Nicolas Devenet <nicolas[at]devenet.info>
- *	Code hosted on github.com/nicolabricot
+ *  Developped with love by Nicolas Devenet <nicolas[at]devenet.info>
+ *  Code hosted on github.com/nicolabricot
  */
 
 error_reporting(0);
@@ -16,19 +16,19 @@ define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
 
 // load settings from file
 if (file_exists(SETTINGS_FILE)) {
-    $settings = json_decode(file_get_contents(SETTINGS_FILE));
+	$settings = json_decode(file_get_contents(SETTINGS_FILE));
 
-    define('TITLE', $settings->title);
-    define('YEAR', $settings->year);
-    
-    // is it a private calendar?
-    if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
-    
-    // do the user want an other background?
-    if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
+	define('TITLE', $settings->title);
+	define('YEAR', $settings->year);
+	
+	// is it a private calendar?
+	if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
+	
+	// do the user want an other background?
+	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
-    // want to add disqus thread?
-    if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) { define('DISQUS', $settings->disqus_shortname); }
+	// want to add disqus thread?
+	if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) { define('DISQUS', $settings->disqus_shortname); }
 }
 else { die('<!doctype html><html><head><title>Advent Calendar</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
@@ -41,7 +41,7 @@ if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/
 if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 
 /*
- *	Core classes
+ *  Core classes
  */
 abstract class Image {
 	function get($day) {
@@ -100,7 +100,7 @@ abstract class Advent {
 	private function getDayColorClass($day, $active = FALSE) {
 		$result = '';
 		// is the day active ?
-		if ($active) { $result .= 'active '; }		
+		if ($active) { $result .= 'active '; }    
 		// set a color for the background
 		$result .= 'day-color-'.($day%4 + 1);
 		return $result;
@@ -136,7 +136,7 @@ abstract class Advent {
 		$result .= '<a href="./?'. URL_DAY.'='. ($day+1) .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. ($day+1) .'</span></a>';
 		// set the title
 		$result .= '<h1><span>';
-		if (!empty($title))	{ $result .= $title; }
+		if (!empty($title)) { $result .= $title; }
 		else { $result .= 'Day '.($day+1); }
 		$result .= '</span></h1>';
 		// clearfix
@@ -219,7 +219,7 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 	$template = '
 	<div class="container text-center">
 		<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
-		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p>	
+		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p> 
 		<form method="post" role="form" class="espace-lg form-inline">
 			<div class="form-group"><input type="password" name="pass" id="pass" class="form-control input-lg" autofocus required /></div>
 			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-eye-open"></i></button>
@@ -230,7 +230,7 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 else if (isset($_GET['photo'])) { Image::get($_GET['photo']-1); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
-	$template = Advent::getDays();		
+	$template = Advent::getDays();    
 }
 // want to display a day
 else if (isset($_GET['day'])) {
@@ -281,20 +281,20 @@ if (empty($template)) {
 		<div class="container">
 		<div class="navbar-header">
 		<!--<button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
-		  <span class="sr-only">navigation</span>
-		  <span class="icon-bar"></span>
-		  <span class="icon-bar"></span>
-		  <span class="icon-bar"></span>
+			<span class="sr-only">navigation</span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
+			<span class="icon-bar"></span>
 		</button>-->
 		<a class="navbar-brand tip" href="./" title="home" data-placement="right"><i class="glyphicon glyphicon-home"></i> <?php echo TITLE; ?></a>
 		</div>
 		
 		<div class="collapse navbar-collapse" id="navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
-		  <li><a href="./?about" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> Advent Calendar</a></li>
-		  <?php
-		  	if (defined('PASSKEY') && isset($_SESSION['welcome'])) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
-		  ?>
+			<li><a href="./?about" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> Advent Calendar</a></li>
+			<?php
+			if (defined('PASSKEY') && isset($_SESSION['welcome'])) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+			?>
 		</ul>
 		</div>
 		</div>
@@ -317,18 +317,18 @@ if (empty($template)) {
 		</div>
 		</footer>
 		
-    	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
-    	<script src="assets/bootstrap.min.js"></script>
-    	<script src="assets/adventcalendar.js"></script>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="assets/bootstrap.min.js"></script>
+		<script src="assets/adventcalendar.js"></script>
 		<?php if (defined('DISQUS')): ?>
 		<script>
-	        var disqus_shortname = '<?php echo DISQUS; ?>';
-	        (function() {
-	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-	            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-	        })();
-    	</script>
+			var disqus_shortname = '<?php echo DISQUS; ?>';
+			(function() {
+				var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+				dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+				(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+			})();
+		</script>
 		<?php endif; ?>
 	</body>
 </html>
