@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.1.2-dev');
+define('VERSION', '1.2.0-dev');
 define('URL_DAY', 'day');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
@@ -26,6 +26,9 @@ if (file_exists(SETTINGS_FILE)) {
     
     // do the user want an other background?
     if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
+
+    // want to add disqus thread?
+    if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) { define('DISQUS', $settings->disqus_shortname); }
 }
 else { die('<!doctype html><html><head><title>Advent Calendar</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
@@ -159,6 +162,9 @@ abstract class Advent {
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
 		
+		// we add disqus thread if supported
+		if (defined('DISQUS')) { $result .= '<div id="disqus_thread"></div>'; }
+
 		return $result.'</div>';
 	}
 	
@@ -314,5 +320,15 @@ if (empty($template)) {
     	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
     	<script src="assets/bootstrap.min.js"></script>
     	<script src="assets/adventcalendar.js"></script>
+		<?php if (defined('DISQUS')): ?>
+		<script>
+	        var disqus_shortname = '<?php echo DISQUS; ?>';
+	        (function() {
+	            var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	            dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	            (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	        })();
+    	</script>
+		<?php endif; ?>
 	</body>
 </html>
