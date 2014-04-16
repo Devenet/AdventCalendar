@@ -28,7 +28,7 @@ if (file_exists(SETTINGS_FILE)) {
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
 	// want to add disqus thread?
-	if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) { define('DISQUS', $settings->disqus_shortname); }
+	if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) { AddOns::Register(AddOns::AddOn('disqus', $settings->disqus_shortname)); }
 }
 else { die('<!doctype html><html><head><title>Advent Calendar</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
@@ -43,6 +43,31 @@ if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Appl
 /*
  *  Core classes
  */
+abstract class AddOns {
+	const Data = 'data';
+	const Name = 'name';
+
+	static private $addons = Array();
+
+	static function Register(Array $addon) {
+		if (empty($addon[self::Data])) { $addon[self::Data] = TRUE; }
+		self::$addons[$addon['name']] = $addon[self::Data];
+	}
+
+	static function AddOn($name, $data = TRUE) {
+		return array(self::Name => $name, self::Data => $data);
+	}
+
+	static function Found($name) {
+		return isset(self::$addons[$name]);
+	}
+
+	static function Get($name) {
+		if (! self::Found($name)) { return; }
+		return self::$addons[$name];
+	}
+}
+
 abstract class Image {
 	static function get($day) {
 		// check if we can display the request photo
@@ -167,7 +192,7 @@ abstract class Advent {
 		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
 		
 		// we add disqus thread if supported
-		if (defined('DISQUS')) { $result .= '<div id="disqus_thread"></div>'; }
+		if (AddOns::Found('disqus')) { $result .= '<div id="disqus_thread"></div>'; }
 
 		return $result.'</div>';
 	}
@@ -324,9 +349,9 @@ if (empty($template)) {
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="assets/adventcalendar.js"></script>
-		<?php if (defined('DISQUS')): ?>
+		<?php if (AddOns::Found('disqus')): ?>
 		<script>
-			var disqus_shortname = '<?php echo DISQUS; ?>';
+			var disqus_shortname = '<?php echo AddOns::Get("disqus"); ?>';
 			(function() {
 				var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 				dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
