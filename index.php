@@ -44,7 +44,7 @@ if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Appl
  *  Core classes
  */
 abstract class Image {
-	function get($day) {
+	static function get($day) {
 		// check if we can display the request photo
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
 			$day = $day+1;
@@ -67,7 +67,7 @@ abstract class Image {
 		exit();
 	}
 	
-	private function exists($file) {
+	static private function exists($file) {
 		return file_exists(PRIVATE_FOLDER.'/'.$file);
 	}
 }
@@ -81,7 +81,7 @@ abstract class Advent {
 	const BEGIN_DATE = 1201;
 	const END_DATE = 1224;
 	
-	function state() {
+	static function state() {
 		$now = date('Ymd');
 		
 		// if we are before the advent
@@ -92,16 +92,16 @@ abstract class Advent {
 		return self::CURRENT_ADVENT;
 	}
 	
-	function acceptDay($day) {
+	static function acceptDay($day) {
 		return $day >= 0 && $day < self::DAYS;
 	}
 	
-	function isActiveDay($day) {
+	static function isActiveDay($day) {
 		$state = self::state();
 		return ($state == self::CURRENT_ADVENT && $day < date('d')) || $state == self::AFTER_ADVENT;
 	}
 	
-	private function getDayColorClass($day, $active = FALSE) {
+	static private function getDayColorClass($day, $active = FALSE) {
 		$result = '';
 		// is the day active ?
 		if ($active) { $result .= 'active '; }    
@@ -110,7 +110,7 @@ abstract class Advent {
 		return $result;
 	}
 	
-	function getDays() {
+	static function getDays() {
 		$result = '<div class="container days">';
 		for ($i=0; $i<self::DAYS; $i++) {
 			$active = self::isActiveDay($i);
@@ -123,7 +123,7 @@ abstract class Advent {
 		return $result.'</div>';
 	}
 	
-	function getDay($day) {
+	static function getDay($day) {
 		$result = '<div class="container day">';
 		
 		// check if we have info to display
