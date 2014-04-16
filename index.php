@@ -28,7 +28,20 @@ if (file_exists(SETTINGS_FILE)) {
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
 	// want to add disqus thread?
-	if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) { AddOns::Register(AddOns::AddOn('disqus', $settings->disqus_shortname)); }
+	if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) {
+		AddOns::Register(AddOns::AddOn('disqus', $settings->disqus_shortname));
+		AddOns::JavaScriptRegistred();
+	}
+	// want to add google analytics?
+	if (isset($settings->google_analytics) && !empty($settings->google_analytics) && isset($settings->google_analytics->tracking_id) && isset($settings->google_analytics->domain) ) {
+		AddOns::Register(AddOns::AddOn('ga', AddOns::JsonToArray($settings->google_analytics)));
+		AddOns::JavaScriptRegistred();
+	}
+	// want to add piwik?
+	if (isset($settings->piwik) && !empty($settings->piwik) && isset($settings->piwik->piwik_url) && isset($settings->piwik->site_id) ) {
+		AddOns::Register(AddOns::AddOn('piwik', AddOns::JsonToArray($settings->piwik)));
+		AddOns::JavaScriptRegistred();
+	}
 }
 else { die('<!doctype html><html><head><title>Advent Calendar</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
@@ -65,6 +78,14 @@ abstract class AddOns {
 	static function Get($name) {
 		if (! self::Found($name)) { return; }
 		return self::$addons[$name];
+	}
+
+	static function JavaScriptRegistred() {
+		self::Register(self::AddOn('js'));
+	}
+
+	static function JsonToArray($json) {
+		return json_decode(json_encode($json), TRUE);
 	}
 }
 
@@ -349,14 +370,25 @@ if (empty($template)) {
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="assets/adventcalendar.js"></script>
-		<?php if (AddOns::Found('disqus')): ?>
+		<?php if (AddOns::Found('js')): ?>
 		<script>
+			<?php if (AddOns::Found('disqus')): ?>
 			var disqus_shortname = '<?php echo AddOns::Get("disqus"); ?>';
 			(function() {
 				var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
 				dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
 				(document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
 			})();
+			<?php endif; ?>
+			<?php if (AddOns::Found('ga')): $ga = AddOns::Get('ga'); ?>
+			(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){ (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o), m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m) })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+				ga('create', '<?php echo $ga["tracking_id"]; ?>', '<?php echo $ga["domain"]; ?>');
+				ga('send', 'pageview');
+			<?php endif; ?>
+			<?php if (AddOns::Found('piwik')): $piwik = AddOns::Get('piwik'); ?>
+			var _paq = _paq || [];
+			(function(){ var u='//<?php echo $piwik["piwik_url"]; ?>/'; _paq.push(['setSiteId', '<?php echo $piwik["site_id"]; ?>']); _paq.push(['setTrackerUrl', u+'piwik.php']); _paq.push(['trackPageView']); _paq.push(['enableLinkTracking']); var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript'; g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s); })();
+			<?php endif; ?>
 		</script>
 		<?php endif; ?>
 	</body>
