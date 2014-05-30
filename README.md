@@ -1,6 +1,6 @@
 #AdventCalendar
 
-Advent Calender is a very light web application to show a photo and its legend per day before Christmas.  
+Advent Calender is a very light web application to show a picture and its legend per day before Christmas.  
 It’s written in PHP, use last web technologies, and proud to not support old versions of IE.
 
 
@@ -8,18 +8,86 @@ It’s written in PHP, use last web technologies, and proud to not support old v
 
 ***
 
+## You are in a hurry?
+
+OK, let's do it quickly!
+
+```
+git clone https://github.com/nicolabricot/AdventCalendar advent
+cd advent/private
+cp settings.example.json settings.json
+```
+
+Then edit the `settings.json` file to configure the application and set the year.
+To finish, just put your JPEG files in the `private` folder; images named with the number of the day (such as `1.jpeg` or `2.jpg`).
+
+***
+
 ## Installation
 
-Rename file `settings.example.json` file in folder `private` in `settings.json` and personalize information.
+### Get the source
 
-If you want to use the alternate background, juste add this line `"background": "alternate"` before the last `}` and don't forget to add a comma at the end of the previous line!
+Download the last version on the [releases page](https://github.com/nicolabricot/AdventCalendar/releases)!
+
+### Or clone the repository
+
+If you have git on your server, you can also just clone the repository with:
+
+```
+git clone https://github.com/nicolabricot/AdventCalendar advent
+```
 
 ## Configuration
 
-###How to configure it?
+### Basic configuration
+
+Rename the `settings.example.json` file on folder `private` in `settings.json` and edit it to configure the application.
+
+The minimum configuration file must be like:
+```json
+{
+	"title": "my Advent Calendar",
+	"year": 2014
+}
+```
+
+### Full available options
+
+| Property | Type | Description |
+| --- | --- | --- |
+| __`year`__ | integer | Set the year to be used for the calendar and the cutdown |
+| __`title`__ | string | Set the title of your AdventCalendar |
+| __`background`__ | string | Set to `alternate` to use an alternative background image |
+| __`disqus_shortname`__ | string | Set a Disqus account to enable comments for days |
+| __`google_analytics`__ | object | Set a Google Analytics account with a child object containing the two properties `tracking_id` and `domain` |
+| __`piwik`__ | object | Set a Piwik account with a child object containing the two properties `piwik_url` and `site_id` |
+
+This is an example with all options:
+```json
+{
+	"title": "my Advent Calendar",
+	"year": 2014,
+	"background": "alternate",
+	"disqus_shortname": "myDisqusName",
+	"google_analytics": {
+		"tracking_id": "UC-12345",
+		"domain": "domain.tld"
+	},
+	"piwik": {
+		"piwik_url": "piwik.domain.tld",
+		"site_id": "12345"
+	}
+}
+```
+
+## Picture per days
+
+### Add pictures
 
 Put your photos in the `private/` folder, and name them with the number of the day you want to illustrate.
 For example, for the 1st December, call your file `1.jpg` or `1.jpeg`.
+
+### Customize legend and title
 
 To add a title, a legend or a text on a day page, just rename `calendar.example.json` in folder `private` in `calendar.json` and add what you want to display.
 
@@ -30,7 +98,7 @@ For example:
         "1": {
                 "title": "First day of December",
                 "legend": "Paris, November 2013",
-                "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+                "text": "Lorem ipsum dolor sit amet, [...]."
         },
         "2": {
                 "legend": "Berlin, March 2013"
@@ -39,14 +107,16 @@ For example:
                 "title": "Saint Nicholas Day"
         },
         "12": {
-                "text": "Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+                "text": "Lorem ipsum dolor sit amet, [...]."
         }
 }
 ```
 
 ![A day with title, legend and text](adventcalendar-day.jpg)
 
-###Oups, problems?
+***
+
+## Oups, problems?
 
 - __All days are shown before Christmas:__ Check the syntax in `settings.json` or update the year.
 - __Photo is not displayed:__ Be sure your photo is correctly named, like `3.jpg` or `12.jpeg`.
@@ -54,7 +124,7 @@ For example:
 - __Day is shown in late or advance:__ Configure the timezone of your server.
 
 
-###Want to contribute?
+## Want to contribute?
 
-Source code is hosted on [Github](https://github.com/nicolabricot/AdventCalendar) by nicolabricot. Fell free to fork it and to improve the application :)
+Source code is hosted on [Github](https://github.com/nicolabricot/AdventCalendar) by [nicolabricot](https://nicolabricot.com). Fell free to fork it and to improve the application :)
 
