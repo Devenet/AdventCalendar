@@ -129,5 +129,7 @@ For example:
 
 ## Want to contribute?
 
-Source code is hosted on [Github](https://github.com/nicolabricot/AdventCalendar) by [nicolabricot](https://nicolabricot.com). Fell free to fork it and to improve the application :)
+Source code is hosted on [Github](https://github.com/nicolabricot/AdventCalendar) by [nicolabricot](http://nicolabricot.com). Feel free to fork it and to improve the application!
+
+Let me know if you use Advent Calendar by sending me an email, I will be happy ;-)
 
