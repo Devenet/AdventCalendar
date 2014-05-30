@@ -1,14 +1,14 @@
 <?php
 
 /**
- *  Developped with love by Nicolas Devenet <nicolas[at]devenet.info>
- *  Code hosted on github.com/nicolabricot
+ *  Developed with love by Nicolas Devenet <nicolas[at]devenet.info>
+ *  Code hosted on https://github.com/nicolabricot/AdventCalendar
  */
 
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.2.0-dev');
+define('VERSION', '1.2.0');
 define('URL_DAY', 'day');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
@@ -320,8 +320,8 @@ if (empty($template)) {
 		<link rel="icon" type="image/png" href="assets/favicon.png" />
 		
 		<link href="assets/bootstrap.min.css" rel="stylesheet">
-		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 		<link href="assets/adventcalendar.css" rel="stylesheet">
+		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 
 	</head>
 
