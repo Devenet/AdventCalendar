@@ -58,6 +58,7 @@ The minimum configuration file must be like:
 | __`year`__ | integer | Set the year to be used for the calendar and the cutdown |
 | __`title`__ | string | Set the title of your AdventCalendar |
 | __`background`__ | string | Set to `alternate` to use an alternative background image |
+| __`passkey`__ | string | If filled out visitors need to enter a password to access the private AdventCalendar |
 | __`disqus_shortname`__ | string | Set a Disqus account to enable comments for days |
 | __`google_analytics`__ | object | Set a Google Analytics account with a child object containing the two properties `tracking_id` and `domain` |
 | __`piwik`__ | object | Set a Piwik account with a child object containing the two properties `piwik_url` and `site_id` |
@@ -68,6 +69,7 @@ This is an example with all options:
 	"title": "my Advent Calendar",
 	"year": 2014,
 	"background": "alternate",
+	"passkey": "mySecretPassword",
 	"disqus_shortname": "myDisqusName",
 	"google_analytics": {
 		"tracking_id": "UC-12345",
