@@ -85,7 +85,10 @@ This is an example with all options:
 ### Add pictures
 
 Put your photos in the `private/` folder, and name them with the number of the day you want to illustrate.
-For example, for the 1st December, call your file `1.jpg` or `1.jpeg`.
+For example, for the 1st December, call your file `1.jpg` or `1.jpeg`.  
+
+__Be sure that the access to `private` folder is forbidden when browsing it!__   
+For Apache configuration, be sure that a `.htaccess` file with the directive `deny from all` is in and read.
 
 ### Customize legend and title
 
