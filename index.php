@@ -118,6 +118,28 @@ abstract class Image {
 	}
 }
  
+class Day {
+
+	public $day;
+	public $active;
+	public $url;
+	public $title = NULL;
+	public $legend = NULL;
+	public $text = NULL;
+
+	public function __default($day) {
+		$this->day = $day;
+		$this->active = Advent::isActiveDay($day);
+		$this->url = '?'. URL_DAY .'='. ($this->day+1);
+	}
+	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL) {
+		$this->__default($day);
+		$this->title = $title;
+		$this->lengend = $legend;
+		$this->text = $text;
+	}
+}
+
 abstract class Advent {
 	
 	const DAYS = 24;
@@ -157,21 +179,29 @@ abstract class Advent {
 	}
 	
 	static function getDays() {
-		$result = '<div class="container days">';
+		$result = array();
 		for ($i=0; $i<self::DAYS; $i++) {
-			$active = self::isActiveDay($i);
-			if ($active) { $result .= '<a href="?'. URL_DAY .'='. ($i+1) .'" title="Day '. ($i+1) .'"'; }
+			$result[] = new Day($i);
+		}
+		return $result;
+	}
+
+	static function getDaysHtml() {
+		$result = '<div class="container days">';
+		foreach (self::getDays() as $d) {
+			if ($d->active) { $result .= '<a href="'. $d->url .'" title="Day '. ($d->day+1) .'"'; }
 			else { $result .= '<div'; }
-			$result .= ' class="day-row '. self::getDayColorClass($i, $active) .'"><span>'. ($i+1) .'</span>';
-			if ($active) { $result .= '</a>'; }
+			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .'"><span>'. ($d->day+1) .'</span>';
+			if ($d->active) { $result .= '</a>'; }
 			else { $result .= '</div>'; }
 		}
 		return $result.'</div>';
 	}
 	
 	static function getDay($day) {
-		$result = '<div class="container day">';
-		
+		$title = NULL;
+		$legend = NULL;
+		$text = NULL;
 		// check if we have info to display
 		if (file_exists(CALENDAR_FILE)) {
 			$file = json_decode(file_get_contents(CALENDAR_FILE));
@@ -181,6 +211,16 @@ abstract class Advent {
 				if (!empty($file->{$day+1}->text)) { $text = $file->{$day+1}->text; }
 			}
 		}
+		return new Day($day, $title, $legend, $text);
+	}
+
+	static function getDayHtml($day) {
+		$result = '<div class="container day">';
+		
+		$d = self::getDay($day);
+		$title = $d->title;
+		$legend = $d->legend;
+		$text = $d->text;
 		
 		// set the day number block 
 		$result .= '<a href="./?'. URL_DAY.'='. ($day+1) .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. ($day+1) .'</span></a>';
@@ -257,7 +297,6 @@ if (defined('PASSKEY')) {
 	}
 }
 
-
 /*
  * Load template
  */
@@ -280,14 +319,14 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 else if (isset($_GET['photo'])) { Image::get($_GET['photo']-1); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
-	$template = Advent::getDays();    
+	$template = Advent::getDaysHtml();    
 }
 // want to display a day
 else if (isset($_GET['day'])) {
 	$day = $_GET['day'] - 1;
 	if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
 	if (Advent::isActiveDay($day)) {
-		$template = Advent::getDay($day);
+		$template = Advent::getDayHtml($day);
 	}
 	else { $template = Advent::bePatient($day); }
 }
