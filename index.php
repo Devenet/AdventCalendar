@@ -11,6 +11,8 @@ error_reporting(0);
 define('VERSION', '1.3.0+dev');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
+define('URL_PHOTO', 'photo');
+define('URL_ABOUT', 'about');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
@@ -234,7 +236,7 @@ abstract class Advent {
 		$result .= '<div class="clearfix"></div>';
 		
 		// display image
-		$result .= '<div class="text-center"><img src="./?photo='. ($day+1) .'" class="img-responsive img-thumbnail" alt="Day '. ($day+1) .'" />';
+		$result .= '<div class="text-center"><img src="./?'.URL_PHOTO.'='. ($day+1) .'" class="img-responsive img-thumbnail" alt="Day '. ($day+1) .'" />';
 		// do we have a legend?
 		if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
 		$result .= '</div>';
@@ -317,7 +319,7 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 	</div>';
 }
 // want to see a photo ?
-else if (isset($_GET['photo'])) { Image::get($_GET['photo']-1); }
+else if (isset($_GET[URL_PHOTO])) { Image::get($_GET[URL_PHOTO]-1); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
 	$template = Advent::getDaysHtml();    
@@ -333,9 +335,9 @@ else if (isset($_GET['day'])) {
 }
 
 // want to display about page [no need to be logged in to access]
-if (isset($_GET['about'])) {
+if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
-	if (!empty($_GET['about'])) { header('Location: ./?about'); exit(); }
+	if (!empty($_GET[URL_ABOUT])) { header('Location: ./?'.URL_ABOUT); exit(); }
 	$template = file_get_contents('./assets/about.html');
 }
 
@@ -375,7 +377,7 @@ if (empty($template)) {
 		
 		<div class="collapse navbar-collapse" id="navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
-			<li><a href="./?about" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
+			<li><a href="./?<?php echo URL_ABOUT; ?>" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
 			<?php
 			if (defined('PASSKEY') && isset($_SESSION['welcome'])) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
 			?>
