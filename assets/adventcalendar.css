@@ -62,10 +62,10 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 	letter-spacing: -4px;
 	color: #fff;
 }
-.day-row.active.day-color-1 { background: #5FC462; }
-.day-row.active.day-color-2 { background: #EDD360; }
-.day-row.active.day-color-3 { background: #C48CE8; }
-.day-row.active.day-color-4 { background: #49C7FF; }
+.day-row.active.day-color-1 { background: #49C7FF; }
+.day-row.active.day-color-2 { background: #5FC462; }
+.day-row.active.day-color-3 { background: #EDD360; }
+.day-row.active.day-color-4 { background: #C48CE8; }
 
 .day h1 {
 	margin: 0 auto 6px;
