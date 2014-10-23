@@ -165,7 +165,7 @@ class Day {
 	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL) {
 		$this->__default($day);
 		$this->title = $title;
-		$this->lengend = $legend;
+		$this->legend = $legend;
 		$this->text = $text;
 	}
 }
