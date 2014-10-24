@@ -2,3 +2,4 @@ settings.json
 private/*.jpg
 private/*.jpeg
 private/calendar.json
+private/rss_cache.xml

@@ -13,9 +13,11 @@ define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
 define('URL_ABOUT', 'about');
+define('URL_RSS', 'rss');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
+define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
 
 // load settings from file
 if (file_exists(SETTINGS_FILE)) {
@@ -213,6 +215,14 @@ abstract class Advent {
 		return $result;
 	}
 
+	static function getFullDays() {
+		$result = array();
+		for ($i=FIRST_DAY+0; $i<=LAST_DAY; $i++) {
+			$result[] = self::getDay($i);
+		}
+		return $result;
+	}
+
 	static function getDaysHtml() {
 		$result = '<div class="container days">';
 		foreach (self::getDays() as $d) {
@@ -290,6 +300,62 @@ abstract class Advent {
 		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. $day .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
 		
+}
+
+abstract class RSS {
+
+	static protected function escape($string) {
+		return htmlspecialchars_decode(htmlentities($string, ENT_COMPAT, 'UTF-8'));
+	}
+
+	static public function get() {
+		header('Content-Type: application/rss+xml; charset=utf-8');
+
+		// can we display the cache?
+		if (file_exists(RSS_CACHE_FILE) && date("j", filemtime(RSS_CACHE_FILE)) <= date("j")) {
+			//exit(file_get_contents(RSS_CACHE_FILE));
+		}
+
+		$URL = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+		$xml  = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
+		$xml .= '<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">'.PHP_EOL;
+		$xml .= '<channel>'.PHP_EOL;
+		$xml .= '<atom:link href="'.$URL.'?'.URL_RSS.'" rel="self" type="application/rss+xml" />'.PHP_EOL;
+		$xml .= '<title>'.self::escape(TITLE.' &#183; Advent Calendar').'</title>'.PHP_EOL;
+		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
+		$xml .= '<description>RSS feed of '.self::escape(TITLE).'</description>'.PHP_EOL;
+		$xml .= '<pubDate>'.date("D, d M Y H:i:s O", (file_exists(RSS_CACHE_FILE) ? filemtime(RSS_CACHE_FILE) : time())).'</pubDate>'.PHP_EOL;
+		$xml .= '<ttl>1440</ttl>'; // 24 hours
+		$xml .= '<copyright>'.$URL.'</copyright>'.PHP_EOL;
+		$xml .= '<language>en-EN</language>'.PHP_EOL;
+		$xml .= '<generator>Advent Calendar</generator>'.PHP_EOL;
+		$xml .= '<image>'.PHP_EOL;
+		$xml .= '<title>'.self::escape(TITLE.' &#183; Advent Calendar').'</title>'.PHP_EOL;
+		$xml .= '<url>'.$URL.'assets/favicon.png</url>'.PHP_EOL;
+		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
+		$xml .= '<width>48</width>'.PHP_EOL;
+		$xml .= '<height>48</height>'.PHP_EOL;
+		$xml .= '</image>'.PHP_EOL;
+		foreach (Advent::getFullDays() as $day) {
+			if ($day->active) {
+			$xml .= '<item>'.PHP_EOL;
+			$xml .= '<title>'. (empty($day->title) ? 'Day '.$day->day : self::escape($day->title)) .'</title>'.PHP_EOL;
+			$xml .= '<link>'.$URL.$day->url.'</link>'.PHP_EOL;
+			$xml .= '<description><![CDATA['.(empty($day->text) ? '' : self::escape($day->text)).']]></description>'.PHP_EOL;
+			$img = Image::getInfo($day->day);
+			$xml .= '<enclosure url="'.$URL.$img['url'].'" length="'.filesize($img['path']).'" type="'.$img['type'].'" />'.PHP_EOL;
+			$xml .= '<guid isPermaLink="false">'.$day->day.'</guid>'.PHP_EOL;
+			$xml .= '<pubDate>'.date("D, d M Y 00:00:00 O", mktime(0, 0, 0, MONTH, $day->day, YEAR)).'</pubDate>'.PHP_EOL;
+			$xml .= '<source url="'.$URL.'?'.URL_RSS.'">'.TITLE.'</source>'.PHP_EOL;
+			$xml .= '</item>'.PHP_EOL;
+			}
+		}
+		$xml .= '</channel>'.PHP_EOL;
+		$xml .= '</rss>'.PHP_EOL;
+		
+		file_put_contents(RSS_CACHE_FILE, $xml);
+		exit($xml);
+	}
 }
 
 /*
