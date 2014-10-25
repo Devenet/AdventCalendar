@@ -308,6 +308,10 @@ abstract class RSS {
 		return htmlspecialchars_decode(htmlentities($string, ENT_COMPAT, 'UTF-8'));
 	}
 
+	static function url() {
+		return (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+	}
+
 	static public function get() {
 		header('Content-Type: application/rss+xml; charset=utf-8');
 
@@ -316,7 +320,7 @@ abstract class RSS {
 			//exit(file_get_contents(RSS_CACHE_FILE));
 		}
 
-		$URL = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+		$URL = self::url();
 		$xml  = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
 		$xml .= '<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">'.PHP_EOL;
 		$xml .= '<channel>'.PHP_EOL;
@@ -356,10 +360,14 @@ abstract class RSS {
 		file_put_contents(RSS_CACHE_FILE, $xml);
 		exit($xml);
 	}
+
+	public function getLink($passkey = NULL) {
+		return self::url().'?'.URL_RSS.(is_null($passkey) ? '' : '&amp;credential='.$passkey);
+	}
 }
 
 /*
- * Session managment
+ * Session management
  */
 
 if (defined('PASSKEY')) {
@@ -377,8 +385,8 @@ if (defined('PASSKEY')) {
 	}
 	
 	// want to log in
-	if (isset($_POST['pass']) && !empty($_POST['pass'])) {
-		if ($_POST['pass'] == PASSKEY) {
+	if (isset($_POST['credential']) && !empty($_POST['credential'])) {
+		if ($_POST['credential'] == PASSKEY) {
 			$_SESSION['welcome'] = TRUE;
 			header('Location: ./');
 			exit();
@@ -404,8 +412,8 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 		<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
 		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p> 
 		<form method="post" role="form" class="espace-lg form-inline">
-			<div class="form-group"><input type="password" name="pass" id="pass" class="form-control input-lg" autofocus required /></div>
-			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-eye-open"></i></button>
+			<div class="form-group"><input type="password" name="credential" id="credential" class="form-control input-lg" autofocus required /></div>
+			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-user"></i></button>
 		</form>
 	</div>';
 }
@@ -425,6 +433,23 @@ else if (isset($_GET['day'])) {
 	else { $template = Advent::bePatient($day); }
 }
 
+// rss feed is requested
+if (isset($_GET[URL_RSS])) {
+	if (!defined('PASSKEY') || (isset($_GET['credential']) && $_GET['credential'] == PASSKEY)) { RSS::get(); }
+	else if (!isset($loginRequested)) { header('Location: '.str_replace('&amp;', '&', RSS::getLink(PASSKEY))); exit(); }
+	else {
+		header('HTTP/1.1 401 Unauthorized', true, 401);
+		$template = '
+		<div class="container text-center">
+			<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
+			<div class="espace-lg">
+				<p>The RSS feed is not available if you are not authentificated.</p>
+				<p><small><code>'.RSS::getLink('your_passkey').'</code></small></p>
+			</div>
+		</div>';
+	}
+}
+
 // want to display about page [no need to be logged in to access]
 if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
@@ -437,7 +462,9 @@ if (empty($template)) {
 	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="./" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
- 
+
+// helper 
+$authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 ?><!doctype html>
 <html lang="fr">
@@ -456,6 +483,8 @@ if (empty($template)) {
 		<link href="assets/adventcalendar.css" rel="stylesheet">
 		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 
+		<link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink($authentificated ? PASSKEY : NULL); ?>" title="<?php echo TITLE; ?>" />
+
 	</head>
 
 	<body>
@@ -470,7 +499,11 @@ if (empty($template)) {
 		<ul class="nav navbar-nav navbar-right">
 			<li><a href="./?<?php echo URL_ABOUT; ?>" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
 			<?php
-			if (defined('PASSKEY') && isset($_SESSION['welcome'])) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+			// logout
+			if ($authentificated) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+			// rss
+			if ($authentificated) { echo '<li><a href="', RSS::getLink(PASSKEY), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
+			else { echo '<li><a href="', RSS::getLink(), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
 			?>
 		</ul>
 		</div>
