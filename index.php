@@ -308,6 +308,7 @@ abstract class RSS {
 		return htmlspecialchars_decode(htmlentities($string, ENT_COMPAT, 'UTF-8'));
 	}
 
+
 	static function url() {
 		return (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
 	}
@@ -317,7 +318,7 @@ abstract class RSS {
 
 		// can we display the cache?
 		if (file_exists(RSS_CACHE_FILE) && date("j", filemtime(RSS_CACHE_FILE)) <= date("j")) {
-			//exit(file_get_contents(RSS_CACHE_FILE));
+			exit(file_get_contents(RSS_CACHE_FILE));
 		}
 
 		$URL = self::url();
@@ -329,7 +330,7 @@ abstract class RSS {
 		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
 		$xml .= '<description>RSS feed of '.self::escape(TITLE).'</description>'.PHP_EOL;
 		$xml .= '<pubDate>'.date("D, d M Y H:i:s O", (file_exists(RSS_CACHE_FILE) ? filemtime(RSS_CACHE_FILE) : time())).'</pubDate>'.PHP_EOL;
-		$xml .= '<ttl>1440</ttl>'; // 24 hours
+		$xml .= '<ttl>1440</ttl>'.PHP_EOL; // 24 hours
 		$xml .= '<copyright>'.$URL.'</copyright>'.PHP_EOL;
 		$xml .= '<language>en-EN</language>'.PHP_EOL;
 		$xml .= '<generator>Advent Calendar</generator>'.PHP_EOL;
@@ -350,7 +351,7 @@ abstract class RSS {
 			$xml .= '<enclosure url="'.$URL.$img['url'].'" length="'.filesize($img['path']).'" type="'.$img['type'].'" />'.PHP_EOL;
 			$xml .= '<guid isPermaLink="false">'.$day->day.'</guid>'.PHP_EOL;
 			$xml .= '<pubDate>'.date("D, d M Y 00:00:00 O", mktime(0, 0, 0, MONTH, $day->day, YEAR)).'</pubDate>'.PHP_EOL;
-			$xml .= '<source url="'.$URL.'?'.URL_RSS.'">'.TITLE.'</source>'.PHP_EOL;
+			$xml .= '<source url="'.$URL.'?'.URL_RSS.'">'.self::escape(TITLE).'</source>'.PHP_EOL;
 			$xml .= '</item>'.PHP_EOL;
 			}
 		}
