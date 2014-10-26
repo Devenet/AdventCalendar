@@ -1,6 +1,6 @@
 #AdventCalendar
 
-Advent Calender is a very light web application to show a picture and its legend per day before Christmas.  
+Advent Calendar is a very light web application to show a picture and its legend per day before Christmas.  
 It’s written in PHP, use last web technologies, and proud to not support old versions of IE.
 
 
@@ -79,6 +79,19 @@ This is an example with all options:
 		"piwik_url": "piwik.domain.tld",
 		"site_id": "12345"
 	}
+}
+```
+
+### Transform AdventCalendar into CountDownCalendar
+
+If you want, you can also customize month, first day and last day which are used to display the period of days, but it's not really an AdventCalendar anymore ;-)
+
+Just change the period with those 3 options:
+```json
+{
+	"month": 3,
+	"first_day": 8,
+	"last_day": 31
 }
 ```
 

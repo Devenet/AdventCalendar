@@ -8,11 +8,16 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.2.0');
+define('VERSION', '1.3.0');
+define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
+define('URL_PHOTO', 'photo');
+define('URL_ABOUT', 'about');
+define('URL_RSS', 'rss');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
+define('RSS_CACHE_FILE', PRIVATE_FOLDER.'/rss_cache.xml');
 
 // load settings from file
 if (file_exists(SETTINGS_FILE)) {
@@ -20,7 +25,17 @@ if (file_exists(SETTINGS_FILE)) {
 
 	define('TITLE', $settings->title);
 	define('YEAR', $settings->year);
-	
+
+	// is it an other month?
+	if (isset($settings->month) && !empty($settings->month) && $settings->month > 1 && $settings->month <= 12) { define('MONTH', date('m', mktime(0, 0, 0, $settings->month+0))); }
+	else { define('MONTH', 12); }
+	// is it an other begin day?
+	if (isset($settings->first_day) && !empty($settings->first_day) && $settings->first_day > 0 && $settings->first_day <= 31) { define('FIRST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->first_day))); }
+	else { define('FIRST_DAY', '01'); }
+	// is it an other last day?
+	if (isset($settings->last_day) && !empty($settings->last_day) && $settings->last_day > BEGIN_DAY && $settings->last_day <= 31) { define('LAST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->last_day))); }
+	else { define('LAST_DAY', '24'); }
+
 	// is it a private calendar?
 	if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
 	
@@ -43,7 +58,7 @@ if (file_exists(SETTINGS_FILE)) {
 		AddOns::JavaScriptRegistred();
 	}
 }
-else { die('<!doctype html><html><head><title>Advent Calendar</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
+else { die('<!doctype html><html><head><title>'.ADVENT_CALENDAR.'</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
 // is the directory writable ?
 if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
@@ -91,9 +106,25 @@ abstract class AddOns {
 
 abstract class Image {
 	static function get($day) {
+
+		$img = self::getInfo($day);
+		
+		if (!empty($img)) {
+			header('Content-type: '.$img['type']);
+			exit(file_get_contents($img['path']));
+		}
+
+		header('Location: ./');
+		exit();
+	}
+
+	static function getInfo($day) {
+		$result = array();
 		// check if we can display the request photo
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
-			$day = $day+1;
+			$day = $day;
+			$result['url'] = '?'.URL_PHOTO.'='.$day;
+
 			$extension = '.jpg';
 			// if .jpg does not exist, load .jpeg photo
 			if (! self::exists($day.$extension)) {
@@ -101,16 +132,17 @@ abstract class Image {
 				// in case of .jpg or .jpeg file is not found
 				if (! self::exists($day.$extension)) {
 					// enhancement #8: use a default image when not found
-					header('Content-type: image/png');
-					exit(file_get_contents('./assets/404.png'));
+					$result['type'] = 'image/png';
+					$result['path'] = './assets/404.png';
+					return $result;
 				}
 			}
-			$photo = file_get_contents(PRIVATE_FOLDER.'/'.$day.$extension);
-			header('Content-type: image/jpeg');
-			exit($photo);
+			$result['type'] = 'image/jpeg';
+			$result['path'] = PRIVATE_FOLDER.'/'.$day.$extension;
+
+			return $result;
 		}
-		header('Location: ./');
-		exit();
+		return NULL;
 	}
 	
 	static private function exists($file) {
@@ -118,28 +150,47 @@ abstract class Image {
 	}
 }
  
+class Day {
+
+	public $day;
+	public $active;
+	public $url;
+	public $title = NULL;
+	public $legend = NULL;
+	public $text = NULL;
+
+	public function __default($day) {
+		$this->day = $day;
+		$this->active = Advent::isActiveDay($day);
+		$this->url = '?'. URL_DAY .'='. ($this->day);
+	}
+	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL) {
+		$this->__default($day);
+		$this->title = $title;
+		$this->legend = $legend;
+		$this->text = $text;
+	}
+}
+
 abstract class Advent {
-	
-	const DAYS = 24;
+
 	const BEFORE_ADVENT = -1;
 	const CURRENT_ADVENT = 0;
 	const AFTER_ADVENT = 1;
-	const BEGIN_DATE = 1201;
-	const END_DATE = 1224;
 	
 	static function state() {
 		$now = date('Ymd');
 		
 		// if we are before the advent
-		if ($now < YEAR.self::BEGIN_DATE) { return self::BEFORE_ADVENT; }
+		if ($now < YEAR.MONTH.FIRST_DAY) { return self::BEFORE_ADVENT; }
 		// if we are after
-		if ($now > YEAR.self::END_DATE) { return self::AFTER_ADVENT; }
+		if ($now > YEAR.MONTH.LAST_DAY) { return self::AFTER_ADVENT; }
 		// else we are currently in advent \o/
 		return self::CURRENT_ADVENT;
 	}
 	
 	static function acceptDay($day) {
-		return $day >= 0 && $day < self::DAYS;
+		return $day >= FIRST_DAY && $day <= LAST_DAY;
 	}
 	
 	static function isActiveDay($day) {
@@ -157,43 +208,70 @@ abstract class Advent {
 	}
 	
 	static function getDays() {
+		$result = array();
+		for ($i=FIRST_DAY+0; $i<=LAST_DAY; $i++) {
+			$result[] = new Day($i);
+		}
+		return $result;
+	}
+
+	static function getFullDays() {
+		$result = array();
+		for ($i=FIRST_DAY+0; $i<=LAST_DAY; $i++) {
+			$result[] = self::getDay($i);
+		}
+		return $result;
+	}
+
+	static function getDaysHtml() {
 		$result = '<div class="container days">';
-		for ($i=0; $i<self::DAYS; $i++) {
-			$active = self::isActiveDay($i);
-			if ($active) { $result .= '<a href="?'. URL_DAY .'='. ($i+1) .'" title="Day '. ($i+1) .'"'; }
+		foreach (self::getDays() as $d) {
+			if ($d->active) { $result .= '<a href="'. $d->url .'" title="Day '. ($d->day) .'"'; }
 			else { $result .= '<div'; }
-			$result .= ' class="day-row '. self::getDayColorClass($i, $active) .'"><span>'. ($i+1) .'</span>';
-			if ($active) { $result .= '</a>'; }
+			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .'"><span>'. ($d->day) .'</span>';
+			if ($d->active) { $result .= '</a>'; }
 			else { $result .= '</div>'; }
 		}
 		return $result.'</div>';
 	}
 	
 	static function getDay($day) {
-		$result = '<div class="container day">';
-		
+		$title = NULL;
+		$legend = NULL;
+		$text = NULL;
 		// check if we have info to display
 		if (file_exists(CALENDAR_FILE)) {
 			$file = json_decode(file_get_contents(CALENDAR_FILE));
-			if (!empty($file->{$day+1})) {
-				if (!empty($file->{$day+1}->title)) { $title = htmlspecialchars($file->{$day+1}->title); }
-				if (!empty($file->{$day+1}->legend)) { $legend = htmlspecialchars($file->{$day+1}->legend); }
-				if (!empty($file->{$day+1}->text)) { $text = $file->{$day+1}->text; }
+			$day = $day == FIRST_DAY ? ($day+0) : $day;
+			if (!empty($file->{$day})) {
+				if (!empty($file->{$day}->title)) { $title = htmlspecialchars($file->{$day}->title); }
+				if (!empty($file->{$day}->legend)) { $legend = htmlspecialchars($file->{$day}->legend); }
+				if (!empty($file->{$day}->text)) { $text = $file->{$day}->text; }
 			}
 		}
+		return new Day($day, $title, $legend, $text);
+	}
+
+	static function getDayHtml($day) {
+		$result = '<div class="container day">';
+		
+		$d = self::getDay($day);
+		$title = $d->title;
+		$legend = $d->legend;
+		$text = $d->text;
 		
 		// set the day number block 
-		$result .= '<a href="./?'. URL_DAY.'='. ($day+1) .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. ($day+1) .'</span></a>';
+		$result .= '<a href="./?'. URL_DAY.'='. $day .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. $day .'</span></a>';
 		// set the title
 		$result .= '<h1><span>';
 		if (!empty($title)) { $result .= $title; }
-		else { $result .= 'Day '.($day+1); }
+		else { $result .= 'Day '.$day; }
 		$result .= '</span></h1>';
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 		
 		// display image
-		$result .= '<div class="text-center"><img src="./?photo='. ($day+1) .'" class="img-responsive img-thumbnail" alt="Day '. ($day+1) .'" />';
+		$result .= '<div class="text-center"><img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="Day '. $day .'" />';
 		// do we have a legend?
 		if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
 		$result .= '</div>';
@@ -205,10 +283,10 @@ abstract class Advent {
 		
 		// we do not forget the pagination
 		$result .= '<ul class="pager"><li class="previous';
-		if (self::isActiveDay($day-1) && ($day-1)>=0) { $result .= '"><a href="?'. URL_DAY .'='. $day .'" title="yesterday" class="tip" data-placement="right">'; }
+		if (self::isActiveDay($day-1) && ($day-1)>=FIRST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day-1) .'" title="yesterday" class="tip" data-placement="right">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-left"></i></a></li><li class="next';
-		if (self::isActiveDay($day+1) && ($day+1)<self::DAYS) { $result .= '"><a href="?'. URL_DAY .'='. ($day+2) .'" title="tomorrow" class="tip" data-placement="left">'; }
+		if (self::isActiveDay($day+1) && ($day+1)<=LAST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day+1) .'" title="tomorrow" class="tip" data-placement="left">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
 		
@@ -219,13 +297,78 @@ abstract class Advent {
 	}
 	
 	function bePatient($day) {
-		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. ($day+1) .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
+		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. $day .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
 		
 }
 
+abstract class RSS {
+
+	static protected function escape($string) {
+		return '<![CDATA['.$string.']]>';
+	}
+
+
+	static function url() {
+		return (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+	}
+
+	static public function get() {
+		header('Content-Type: application/rss+xml; charset=utf-8');
+
+		// can we display the cache?
+		if (file_exists(RSS_CACHE_FILE) && date("j", filemtime(RSS_CACHE_FILE)) <= date("j")) {
+			exit(file_get_contents(RSS_CACHE_FILE));
+		}
+
+		$URL = self::url();
+		$xml  = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
+		$xml .= '<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">'.PHP_EOL;
+		$xml .= '<channel>'.PHP_EOL;
+		$xml .= '<atom:link href="'.$URL.'?'.URL_RSS.'" rel="self" type="application/rss+xml" />'.PHP_EOL;
+		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
+		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
+		$xml .= '<description>'.self::escape('RSS feed of '.TITLE. ' · Advent Calendar').'</description>'.PHP_EOL;
+		$xml .= '<pubDate>'.date("D, d M Y H:i:s O", (file_exists(RSS_CACHE_FILE) ? filemtime(RSS_CACHE_FILE) : time())).'</pubDate>'.PHP_EOL;
+		$xml .= '<ttl>1440</ttl>'.PHP_EOL; // 24 hours
+		$xml .= '<copyright>'.$URL.'</copyright>'.PHP_EOL;
+		$xml .= '<language>en-EN</language>'.PHP_EOL;
+		$xml .= '<generator>Advent Calendar</generator>'.PHP_EOL;
+		$xml .= '<image>'.PHP_EOL;
+		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
+		$xml .= '<url>'.$URL.'assets/favicon.png</url>'.PHP_EOL;
+		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
+		$xml .= '<width>48</width>'.PHP_EOL;
+		$xml .= '<height>48</height>'.PHP_EOL;
+		$xml .= '</image>'.PHP_EOL;
+		foreach (Advent::getFullDays() as $day) {
+			if ($day->active) {
+			$xml .= '<item>'.PHP_EOL;
+			$xml .= '<title>'. (empty($day->title) ? 'Day '.$day->day : self::escape($day->title)) .'</title>'.PHP_EOL;
+			$xml .= '<link>'.$URL.$day->url.'</link>'.PHP_EOL;
+			$xml .= '<description>'.(empty($day->text) ? '' : self::escape($day->text)).'</description>'.PHP_EOL;
+			$img = Image::getInfo($day->day);
+			$xml .= '<enclosure url="'.$URL.$img['url'].'" length="'.filesize($img['path']).'" type="'.$img['type'].'" />'.PHP_EOL;
+			$xml .= '<guid isPermaLink="false">'.$day->day.'</guid>'.PHP_EOL;
+			$xml .= '<pubDate>'.date("D, d M Y 00:00:00 O", mktime(0, 0, 0, MONTH, $day->day, YEAR)).'</pubDate>'.PHP_EOL;
+			$xml .= '<source url="'.$URL.'?'.URL_RSS.'">'.self::escape(TITLE).'</source>'.PHP_EOL;
+			$xml .= '</item>'.PHP_EOL;
+			}
+		}
+		$xml .= '</channel>'.PHP_EOL;
+		$xml .= '</rss>'.PHP_EOL;
+		
+		file_put_contents(RSS_CACHE_FILE, $xml);
+		exit($xml);
+	}
+
+	public function getLink($passkey = NULL) {
+		return self::url().'?'.URL_RSS.(is_null($passkey) ? '' : '&amp;credential='.$passkey);
+	}
+}
+
 /*
- * Session managment
+ * Session management
  */
 
 if (defined('PASSKEY')) {
@@ -243,8 +386,8 @@ if (defined('PASSKEY')) {
 	}
 	
 	// want to log in
-	if (isset($_POST['pass']) && !empty($_POST['pass'])) {
-		if ($_POST['pass'] == PASSKEY) {
+	if (isset($_POST['credential']) && !empty($_POST['credential'])) {
+		if ($_POST['credential'] == PASSKEY) {
 			$_SESSION['welcome'] = TRUE;
 			header('Location: ./');
 			exit();
@@ -256,7 +399,6 @@ if (defined('PASSKEY')) {
 		$loginRequested = TRUE;
 	}
 }
-
 
 /*
  * Load template
@@ -271,31 +413,48 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 		<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
 		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p> 
 		<form method="post" role="form" class="espace-lg form-inline">
-			<div class="form-group"><input type="password" name="pass" id="pass" class="form-control input-lg" autofocus required /></div>
-			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-eye-open"></i></button>
+			<div class="form-group"><input type="password" name="credential" id="credential" class="form-control input-lg" autofocus required /></div>
+			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-user"></i></button>
 		</form>
 	</div>';
 }
 // want to see a photo ?
-else if (isset($_GET['photo'])) { Image::get($_GET['photo']-1); }
+else if (isset($_GET[URL_PHOTO])) { Image::get($_GET[URL_PHOTO]+0); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
-	$template = Advent::getDays();    
+	$template = Advent::getDaysHtml();    
 }
 // want to display a day
 else if (isset($_GET['day'])) {
-	$day = $_GET['day'] - 1;
+	$day = $_GET['day'] + 0;
 	if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
 	if (Advent::isActiveDay($day)) {
-		$template = Advent::getDay($day);
+		$template = Advent::getDayHtml($day);
 	}
 	else { $template = Advent::bePatient($day); }
 }
 
+// rss feed is requested
+if (isset($_GET[URL_RSS])) {
+	if (!defined('PASSKEY') || (isset($_GET['credential']) && $_GET['credential'] == PASSKEY)) { RSS::get(); }
+	else if (!isset($loginRequested)) { header('Location: '.str_replace('&amp;', '&', RSS::getLink(PASSKEY))); exit(); }
+	else {
+		header('HTTP/1.1 401 Unauthorized', true, 401);
+		$template = '
+		<div class="container text-center">
+			<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
+			<div class="espace-lg">
+				<p>The RSS feed is not available if you are not authentificated.</p>
+				<p><small><code>'.RSS::getLink('your_passkey').'</code></small></p>
+			</div>
+		</div>';
+	}
+}
+
 // want to display about page [no need to be logged in to access]
-if (isset($_GET['about'])) {
+if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
-	if (!empty($_GET['about'])) { header('Location: ./?about'); exit(); }
+	if (!empty($_GET[URL_ABOUT])) { header('Location: ./?'.URL_ABOUT); exit(); }
 	$template = file_get_contents('./assets/about.html');
 }
 
@@ -304,13 +463,15 @@ if (empty($template)) {
 	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="./" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
- 
+
+// helper 
+$authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 ?><!doctype html>
 <html lang="fr">
 	<head>
 		<meta charset="UTF-8" />
-		<title><?php echo TITLE; ?> &middot; Advent Calendar</title>
+		<title><?php echo TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
 		
 		<!-- Parce qu’il y a toujours un peu d’humain derrière un site... -->
 		<meta name="author" content="Nicolas Devenet" />
@@ -322,6 +483,8 @@ if (empty($template)) {
 		<link href="assets/bootstrap.min.css" rel="stylesheet">
 		<link href="assets/adventcalendar.css" rel="stylesheet">
 		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
+
+		<link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink($authentificated ? PASSKEY : NULL); ?>" title="<?php echo TITLE; ?>" />
 
 	</head>
 
@@ -335,9 +498,13 @@ if (empty($template)) {
 		
 		<div class="collapse navbar-collapse" id="navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
-			<li><a href="./?about" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> Advent Calendar</a></li>
+			<li><a href="./?<?php echo URL_ABOUT; ?>" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
 			<?php
-			if (defined('PASSKEY') && isset($_SESSION['welcome'])) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+			// logout
+			if ($authentificated) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+			// rss
+			if ($authentificated) { echo '<li><a href="', RSS::getLink(PASSKEY), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
+			else { echo '<li><a href="', RSS::getLink(), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
 			?>
 		</ul>
 		</div>
@@ -355,7 +522,7 @@ if (empty($template)) {
 		<div class="container">
 			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
 			<div class="notice">
-				<a href="https://github.com/nicolabricot/AdventCalendar" rel="external">Advent Calendar</a> &middot; Version <?php echo VERSION; ?>
+				<a href="https://github.com/nicolabricot/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo VERSION; ?>
 				<br />Developed with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
 			</div>
 		</div>
