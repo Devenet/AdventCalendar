@@ -305,7 +305,7 @@ abstract class Advent {
 abstract class RSS {
 
 	static protected function escape($string) {
-		return htmlspecialchars_decode(htmlentities($string, ENT_COMPAT, 'UTF-8'));
+		return '<![CDATA['.$string.']]>';
 	}
 
 
@@ -326,16 +326,16 @@ abstract class RSS {
 		$xml .= '<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">'.PHP_EOL;
 		$xml .= '<channel>'.PHP_EOL;
 		$xml .= '<atom:link href="'.$URL.'?'.URL_RSS.'" rel="self" type="application/rss+xml" />'.PHP_EOL;
-		$xml .= '<title>'.self::escape(TITLE.' &#183; Advent Calendar').'</title>'.PHP_EOL;
+		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
 		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
-		$xml .= '<description>RSS feed of '.self::escape(TITLE).'</description>'.PHP_EOL;
+		$xml .= '<description>'.self::escape('RSS feed of '.TITLE. ' · Advent Calendar').'</description>'.PHP_EOL;
 		$xml .= '<pubDate>'.date("D, d M Y H:i:s O", (file_exists(RSS_CACHE_FILE) ? filemtime(RSS_CACHE_FILE) : time())).'</pubDate>'.PHP_EOL;
 		$xml .= '<ttl>1440</ttl>'.PHP_EOL; // 24 hours
 		$xml .= '<copyright>'.$URL.'</copyright>'.PHP_EOL;
 		$xml .= '<language>en-EN</language>'.PHP_EOL;
 		$xml .= '<generator>Advent Calendar</generator>'.PHP_EOL;
 		$xml .= '<image>'.PHP_EOL;
-		$xml .= '<title>'.self::escape(TITLE.' &#183; Advent Calendar').'</title>'.PHP_EOL;
+		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
 		$xml .= '<url>'.$URL.'assets/favicon.png</url>'.PHP_EOL;
 		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
 		$xml .= '<width>48</width>'.PHP_EOL;
@@ -346,7 +346,7 @@ abstract class RSS {
 			$xml .= '<item>'.PHP_EOL;
 			$xml .= '<title>'. (empty($day->title) ? 'Day '.$day->day : self::escape($day->title)) .'</title>'.PHP_EOL;
 			$xml .= '<link>'.$URL.$day->url.'</link>'.PHP_EOL;
-			$xml .= '<description><![CDATA['.(empty($day->text) ? '' : self::escape($day->text)).']]></description>'.PHP_EOL;
+			$xml .= '<description>'.(empty($day->text) ? '' : self::escape($day->text)).'</description>'.PHP_EOL;
 			$img = Image::getInfo($day->day);
 			$xml .= '<enclosure url="'.$URL.$img['url'].'" length="'.filesize($img['path']).'" type="'.$img['type'].'" />'.PHP_EOL;
 			$xml .= '<guid isPermaLink="false">'.$day->day.'</guid>'.PHP_EOL;
