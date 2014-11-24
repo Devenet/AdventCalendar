@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.3.0');
+define('VERSION', '1.3.1');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -33,7 +33,7 @@ if (file_exists(SETTINGS_FILE)) {
 	if (isset($settings->first_day) && !empty($settings->first_day) && $settings->first_day > 0 && $settings->first_day <= 31) { define('FIRST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->first_day))); }
 	else { define('FIRST_DAY', '01'); }
 	// is it an other last day?
-	if (isset($settings->last_day) && !empty($settings->last_day) && $settings->last_day > BEGIN_DAY && $settings->last_day <= 31) { define('LAST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->last_day))); }
+	if (isset($settings->last_day) && !empty($settings->last_day) && $settings->last_day > FIRST_DAY && $settings->last_day <= 31) { define('LAST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->last_day))); }
 	else { define('LAST_DAY', '24'); }
 
 	// is it a private calendar?
@@ -195,7 +195,7 @@ abstract class Advent {
 	
 	static function isActiveDay($day) {
 		$state = self::state();
-		return ($state == self::CURRENT_ADVENT && $day < date('d')) || $state == self::AFTER_ADVENT;
+		return ($state == self::CURRENT_ADVENT && $day <= date('d')) || $state == self::AFTER_ADVENT;
 	}
 	
 	static private function getDayColorClass($day, $active = FALSE) {
