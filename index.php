@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.3.1');
+define('VERSION', '1.3.2');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -38,7 +38,7 @@ if (file_exists(SETTINGS_FILE)) {
 
 	// is it a private calendar?
 	if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
-	
+
 	// do the user want an other background?
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
@@ -108,7 +108,7 @@ abstract class Image {
 	static function get($day) {
 
 		$img = self::getInfo($day);
-		
+
 		if (!empty($img)) {
 			header('Content-type: '.$img['type']);
 			exit(file_get_contents($img['path']));
@@ -144,12 +144,12 @@ abstract class Image {
 		}
 		return NULL;
 	}
-	
+
 	static private function exists($file) {
 		return file_exists(PRIVATE_FOLDER.'/'.$file);
 	}
 }
- 
+
 class Day {
 
 	public $day;
@@ -177,10 +177,10 @@ abstract class Advent {
 	const BEFORE_ADVENT = -1;
 	const CURRENT_ADVENT = 0;
 	const AFTER_ADVENT = 1;
-	
+
 	static function state() {
 		$now = date('Ymd');
-		
+
 		// if we are before the advent
 		if ($now < YEAR.MONTH.FIRST_DAY) { return self::BEFORE_ADVENT; }
 		// if we are after
@@ -188,25 +188,25 @@ abstract class Advent {
 		// else we are currently in advent \o/
 		return self::CURRENT_ADVENT;
 	}
-	
+
 	static function acceptDay($day) {
 		return $day >= FIRST_DAY && $day <= LAST_DAY;
 	}
-	
+
 	static function isActiveDay($day) {
 		$state = self::state();
 		return ($state == self::CURRENT_ADVENT && $day <= date('d')) || $state == self::AFTER_ADVENT;
 	}
-	
+
 	static private function getDayColorClass($day, $active = FALSE) {
 		$result = '';
 		// is the day active ?
-		if ($active) { $result .= 'active '; }    
+		if ($active) { $result .= 'active '; }
 		// set a color for the background
 		$result .= 'day-color-'.($day%4 + 1);
 		return $result;
 	}
-	
+
 	static function getDays() {
 		$result = array();
 		for ($i=FIRST_DAY+0; $i<=LAST_DAY; $i++) {
@@ -234,7 +234,7 @@ abstract class Advent {
 		}
 		return $result.'</div>';
 	}
-	
+
 	static function getDay($day) {
 		$title = NULL;
 		$legend = NULL;
@@ -254,13 +254,13 @@ abstract class Advent {
 
 	static function getDayHtml($day) {
 		$result = '<div class="container day">';
-		
+
 		$d = self::getDay($day);
 		$title = $d->title;
 		$legend = $d->legend;
 		$text = $d->text;
-		
-		// set the day number block 
+
+		// set the day number block
 		$result .= '<a href="./?'. URL_DAY.'='. $day .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. $day .'</span></a>';
 		// set the title
 		$result .= '<h1><span>';
@@ -269,7 +269,7 @@ abstract class Advent {
 		$result .= '</span></h1>';
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
-		
+
 		// display image
 		$result .= '<div class="text-center"><img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="Day '. $day .'" />';
 		// do we have a legend?
@@ -277,10 +277,10 @@ abstract class Advent {
 		$result .= '</div>';
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
-		
+
 		// do we have a text?
 		if (!empty($text)) { $result .= '<div class="text panel panel-default"><div class="panel-body">'.$text.'</div></div>'; }
-		
+
 		// we do not forget the pagination
 		$result .= '<ul class="pager"><li class="previous';
 		if (self::isActiveDay($day-1) && ($day-1)>=FIRST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day-1) .'" title="yesterday" class="tip" data-placement="right">'; }
@@ -289,17 +289,17 @@ abstract class Advent {
 		if (self::isActiveDay($day+1) && ($day+1)<=LAST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day+1) .'" title="tomorrow" class="tip" data-placement="left">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
-		
+
 		// we add disqus thread if supported
 		if (AddOns::Found('disqus')) { $result .= '<div id="disqus_thread"></div>'; }
 
 		return $result.'</div>';
 	}
-	
+
 	function bePatient($day) {
 		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. $day .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
-		
+
 }
 
 abstract class RSS {
@@ -307,7 +307,6 @@ abstract class RSS {
 	static protected function escape($string) {
 		return '<![CDATA['.$string.']]>';
 	}
-
 
 	static function url() {
 		return (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
@@ -357,13 +356,13 @@ abstract class RSS {
 		}
 		$xml .= '</channel>'.PHP_EOL;
 		$xml .= '</rss>'.PHP_EOL;
-		
+
 		file_put_contents(RSS_CACHE_FILE, $xml);
 		exit($xml);
 	}
 
-	public function getLink($passkey = NULL) {
-		return self::url().'?'.URL_RSS.(is_null($passkey) ? '' : '&amp;credential='.$passkey);
+	public function getLink() {
+		return self::url().'?'.URL_RSS;
 	}
 }
 
@@ -374,9 +373,9 @@ abstract class RSS {
 if (defined('PASSKEY')) {
 	// for calendars on same server, set a different cookie name based on the script path
 	session_name(md5($_SERVER['SCRIPT_NAME']));
-	
+
 	session_start();
-	
+
 	// want to log out
 	if (isset($_GET['logout'])) {
 		$_SESSION['welcome'] = FALSE;
@@ -384,7 +383,7 @@ if (defined('PASSKEY')) {
 		header('Location: ./');
 		exit();
 	}
-	
+
 	// want to log in
 	if (isset($_POST['credential']) && !empty($_POST['credential'])) {
 		if ($_POST['credential'] == PASSKEY) {
@@ -393,7 +392,7 @@ if (defined('PASSKEY')) {
 			exit();
 		}
 	}
-	
+
 	// not logged in: we ask passkey
 	if (!isset($_SESSION['welcome']) || !$_SESSION['welcome']) {
 		$loginRequested = TRUE;
@@ -403,7 +402,7 @@ if (defined('PASSKEY')) {
 /*
  * Load template
  */
- 
+
 $template = NULL;
 
 // need to display log form?
@@ -411,7 +410,7 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 	$template = '
 	<div class="container text-center">
 		<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
-		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p> 
+		<p>Please sign in with your <span class="font-normal">passkey</span> to continue.</p>
 		<form method="post" role="form" class="espace-lg form-inline">
 			<div class="form-group"><input type="password" name="credential" id="credential" class="form-control input-lg" autofocus required /></div>
 			<button type="submit" class="btn btn-default btn-lg tip" data-placement="right" data-title="sign in"><i class="glyphicon glyphicon-user"></i></button>
@@ -422,7 +421,7 @@ if (defined('PASSKEY') && isset($loginRequested)) {
 else if (isset($_GET[URL_PHOTO])) { Image::get($_GET[URL_PHOTO]+0); }
 // nothing asked, display homepage
 else if (empty($_GET)) {
-	$template = Advent::getDaysHtml();    
+	$template = Advent::getDaysHtml();
 }
 // want to display a day
 else if (isset($_GET['day'])) {
@@ -434,18 +433,17 @@ else if (isset($_GET['day'])) {
 	else { $template = Advent::bePatient($day); }
 }
 
-// rss feed is requested
+// rss feed is requested (only supported for no procted Advent Calendar)
 if (isset($_GET[URL_RSS])) {
-	if (!defined('PASSKEY') || (isset($_GET['credential']) && $_GET['credential'] == PASSKEY)) { RSS::get(); }
-	else if (!isset($loginRequested)) { header('Location: '.str_replace('&amp;', '&', RSS::getLink(PASSKEY))); exit(); }
+	if (!defined('PASSKEY')) { RSS::get(); }
 	else {
-		header('HTTP/1.1 401 Unauthorized', true, 401);
+		header('HTTP/1.1 501 Not Implemented', true, 501);
 		$template = '
 		<div class="container text-center">
-			<div class="page-header"><h1 class="text-danger">This is a private area!</h1></div>
+			<div class="page-header"><h1 class="text-warning">Functionality not supported</h1></div>
 			<div class="espace-lg">
-				<p>The RSS feed is not available if you are not authentificated.</p>
-				<p><small><code>'.RSS::getLink('your_passkey').'</code></small></p>
+				<p>The RSS feed is not available for a protected '.ADVENT_CALENDAR.'.</p>
+				<p><a href="./" class="text-center tip" title="home" data-placement="bottom"><i class="glyphicon glyphicon-home"></i></a></p>
 			</div>
 		</div>';
 	}
@@ -464,7 +462,7 @@ if (empty($template)) {
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
 
-// helper 
+// helper
 $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 ?><!doctype html>
@@ -472,30 +470,29 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 	<head>
 		<meta charset="UTF-8" />
 		<title><?php echo TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
-		
+
 		<!-- Parce qu’il y a toujours un peu d’humain derrière un site... -->
 		<meta name="author" content="Nicolas Devenet" />
-		
+
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico" />
 		<link rel="icon" type="image/png" href="assets/favicon.png" />
-		
+
 		<link href="assets/bootstrap.min.css" rel="stylesheet">
 		<link href="assets/adventcalendar.css" rel="stylesheet">
 		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 
-		<link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink($authentificated ? PASSKEY : NULL); ?>" title="<?php echo TITLE; ?>" />
-
+		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink(); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
 	</head>
 
 	<body>
-		
+
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 		<div class="container">
 		<div class="navbar-header">
 		<a class="navbar-brand tip" href="./" title="home" data-placement="right"><i class="glyphicon glyphicon-home"></i> <?php echo TITLE; ?></a>
 		</div>
-		
+
 		<div class="collapse navbar-collapse" id="navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
 			<li><a href="./?<?php echo URL_ABOUT; ?>" class="tip" data-placement="left" title="about"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
@@ -503,20 +500,19 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 			// logout
 			if ($authentificated) { echo '<li><a href="./?logout" title="logout" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
 			// rss
-			if ($authentificated) { echo '<li><a href="', RSS::getLink(PASSKEY), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
-			else { echo '<li><a href="', RSS::getLink(), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
+			if (!defined('PASSKEY')) { echo '<li><a href="', RSS::getLink(), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
 			?>
 		</ul>
 		</div>
 		</div>
 		</nav>
-		
+
 		<div class="background<?php if(defined('ALTERNATE_BACKGROUND')) { echo ' alternate-background'; } ?>">
 		<?php
 			echo $template;
 		?>
 		</div>
-		
+
 		<footer>
 		<hr />
 		<div class="container">
@@ -527,7 +523,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 			</div>
 		</div>
 		</footer>
-		
+
 		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="assets/adventcalendar.js"></script>
