@@ -2,13 +2,13 @@
 
 /**
  *  Developed with love by Nicolas Devenet <nicolas[at]devenet.info>
- *  Code hosted on https://github.com/nicolabricot/AdventCalendar
+ *  Code hosted on https://github.com/Devenet/AdventCalendar
  */
 
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.3.2');
+define('VERSION', '1.3.3');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -518,7 +518,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		<div class="container">
 			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
 			<div class="notice">
-				<a href="https://github.com/nicolabricot/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo VERSION; ?>
+				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo VERSION; ?>
 				<br />Developed with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
 			</div>
 		</div>

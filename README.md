@@ -13,7 +13,7 @@ It’s written in PHP, use last web technologies, and proud to not support old v
 OK, let's do it quickly!
 
 ```
-git clone https://github.com/nicolabricot/AdventCalendar advent
+git clone https://github.com/Devenet/AdventCalendar advent
 cd advent/private
 cp settings.example.json settings.json
 ```
@@ -27,14 +27,14 @@ To finish, just put your JPEG files in the `private` folder; images named with t
 
 ### Get the source
 
-Download the last version on the [releases page](https://github.com/nicolabricot/AdventCalendar/releases)!
+Download the last version on the [releases page](https://github.com/Devenet/AdventCalendar/releases)!
 
 ### Or clone the repository
 
 If you have git on your server, you can also just clone the repository with:
 
 ```
-git clone https://github.com/nicolabricot/AdventCalendar advent
+git clone https://github.com/Devenet/AdventCalendar advent
 ```
 
 ## Configuration
@@ -144,7 +144,6 @@ For example:
 
 ## Want to contribute?
 
-Source code is hosted on [Github](https://github.com/nicolabricot/AdventCalendar) by [nicolabricot](http://nicolabricot.com). Feel free to fork it and to improve the application!
+Source code is hosted on [Github](https://github.com/Devenet/AdventCalendar) by [Nicolas Devenet](https://nicolas.devenet.com). Feel free to fork it and to improve the application!
 
 Let me know if you use Advent Calendar by sending me an email, I will be happy ;-)
-
