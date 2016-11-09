@@ -24,17 +24,17 @@ if (file_exists(SETTINGS_FILE)) {
 	$settings = json_decode(file_get_contents(SETTINGS_FILE));
 
 	define('TITLE', $settings->title);
-	define('YEAR', $settings->year);
+	define('YEAR', date('Y'));
 
 	// is it an other month?
 	if (isset($settings->month) && !empty($settings->month) && $settings->month > 1 && $settings->month <= 12) { define('MONTH', date('m', mktime(0, 0, 0, $settings->month+0))); }
-	else { define('MONTH', 12); }
+	else { define('MONTH', date('m')); }
 	// is it an other begin day?
 	if (isset($settings->first_day) && !empty($settings->first_day) && $settings->first_day > 0 && $settings->first_day <= 31) { define('FIRST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->first_day))); }
 	else { define('FIRST_DAY', '01'); }
 	// is it an other last day?
 	if (isset($settings->last_day) && !empty($settings->last_day) && $settings->last_day > FIRST_DAY && $settings->last_day <= 31) { define('LAST_DAY', date('d', mktime(0, 0, 0, MONTH, $settings->last_day))); }
-	else { define('LAST_DAY', '24'); }
+	else { define('LAST_DAY', date('t')); }
 
 	// is it a private calendar?
 	if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
