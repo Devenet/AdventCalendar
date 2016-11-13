@@ -1,0 +1,25 @@
+body, h1, h1 small {
+	font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-weight: 300;
+	background: #f8f8f8;
+}
+h1 { font-weight: bold; }
+.space-top { margin-top: 10px; }
+.space-top-md { margin-top: 20px; }
+.space-bottom-md { margin-bottom: 20px; }
+.space-left { margin-left: 10px; }
+.no-space-top { margin-top: 0; }
+.no-space-bottom { margin-bottom: 0; }
+.page-header { margin-top:0; }
+h3 { margin-bottom: 20px; }
+.table > tbody > tr > td.day { color: #fff; vertical-align: middle; text-align: center; font-size: 24px; }
+.table > tbody > tr > td.day strong { font-size: 34px; }
+.table > tbody > tr > td.day.day-color-1 { background: #49C7FF; }
+.table > tbody > tr > td.day.day-color-2 { background: #5FC462; }
+.table > tbody > tr > td.day.day-color-3 { background: #EDD360; }
+.table > tbody > tr > td.day.day-color-4 { background: #C48CE8; }
+.table > tbody > tr > td.cell-middle { vertical-align: middle; }
+#top { position: fixed; bottom: 5px; right: 10px; }
+.form label small { font-weight: normal; }
+.form label small:before { content: '['; }
+.form label small:after { content: ']'; }
