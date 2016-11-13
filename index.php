@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.3.3');
+define('VERSION', '1.3.4');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -524,7 +524,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		</div>
 		</footer>
 
-		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="assets/jquery.min.js"></script>
 		<script src="assets/bootstrap.min.js"></script>
 		<script src="assets/adventcalendar.js"></script>
 		<?php if (AddOns::Found('js')): ?>

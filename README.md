@@ -18,7 +18,8 @@ cd advent/private
 cp settings.example.json settings.json
 ```
 
-Then edit the `settings.json` file to configure the application and set the year.
+Then edit the `settings.json` file to configure the application and set the year – or [generate settings file](https://web.devenet.eu/advent/generator/#settings) and put it in the `private` folder.
+
 To finish, just put your JPEG files in the `private` folder; images named with the number of the day (such as `1.jpeg` or `2.jpg`).
 
 ***
@@ -50,6 +51,8 @@ The minimum configuration file must be like:
 	"year": 2014
 }
 ```
+
+__Feel free to use the online [settings file Generator](https://web.devenet.eu/advent/generator/#settings) to easily build your `settings.json` file, and then put it into the `private` folder.__
 
 ### Full available options
 
@@ -113,22 +116,16 @@ For example:
 
 ```json
 {
-        "1": {
-                "title": "First day of December",
-                "legend": "Paris, November 2013",
-                "text": "Lorem ipsum dolor sit amet, [...]."
-        },
-        "2": {
-                "legend": "Berlin, March 2013"
-        },
         "6": {
-                "title": "Saint Nicholas Day"
-        },
-        "12": {
-                "text": "Lorem ipsum dolor sit amet, [...]."
+                "title": "Saint Nicholas Day",
+								"legend": "Berlin, March 2013",
+								"text": "Lorem ipsum dolor sit amet, [...]."
         }
 }
 ```
+
+__Feel free to use the online [calendar file Generator](https://web.devenet.eu/advent/generator/#calendar) to easily build your `calendar.json` file, and then put it into the `private` folder.__
+
 
 ![A day with title, legend and text](adventcalendar-day.jpg)
 
