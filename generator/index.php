@@ -26,9 +26,8 @@
       <button class="space-left btn btn-primary" data-bind="click: download, enable: enableDownload">Download</button>
     </div>
     <hr>
-</div>
-
   </div>
+
 
   <div class="container" data-bind="visible: (selectedGenerator() == 'calendar.json')">
     <h3 class="no-space-top pull-left"><code>calendar.json</code></h3>
@@ -135,6 +134,7 @@
   <script src="../assets/jquery.min.js"></script>
   <script src="../assets/bootstrap.min.js"></script>
   <script src="./assets/knockout.min.js"></script>
+  <script src="./assets/filesaver.min.js"></script>
   <script src="./assets/scripts.js"></script>
 </body>
 </html>

@@ -1,15 +1,6 @@
 function download(filename, content) {
-  var dl = document.createElement('a');
-  dl.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(content));
-  dl.setAttribute('download', filename);
-
-  if (document.createEvent) {
-      var event = document.createEvent('MouseEvents');
-      event.initEvent('click', true, true);
-      dl.dispatchEvent(event);
-  } else {
-      dl.click();
-  }
+  var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
+  saveAs(blob, filename);
 }
 
 function Day(day) {
@@ -100,7 +91,8 @@ function GeneratorViewModel() {
 
     switch(self.selectedGenerator()) {
       case 'calendar.json':
-        for (day of self.days()) {
+        for (i=0, l=self.days().length; i<l; i++) {
+          day = self.days()[i];
           if (!day.isEmpty()) {
             result[day.day] = day.toObject();
           }
