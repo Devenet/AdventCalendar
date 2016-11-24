@@ -21,7 +21,8 @@ hr, .page-header { border-color: #cdcdcd; }
 nav.navbar { margin-bottom: 0; }
 .navbar { font-weight: 400; }
 a.navbar-brand i { margin-right: 4px; font-size: 16px; }
-p, .text { font-size: 30px; line-height: 35px; }
+p, .text { font-size: 25px; line-height: 30px; }
+.text small { font-size: 20px; }
 .text-center { text-align: center; }
 .error { margin: 60px auto; width: 70%; font-size: 20px; }
 .error h3 { font-size: 30px; }
