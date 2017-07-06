@@ -1,4 +1,4 @@
-#AdventCalendar
+# AdventCalendar
 
 Advent Calendar is a very light web application to show a picture and its legend per day before Christmas.  
 It’s written in PHP, use last web technologies, and proud to not support old versions of IE.
