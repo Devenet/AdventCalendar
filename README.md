@@ -141,6 +141,6 @@ __Feel free to use the online [calendar file Generator](https://web.devenet.eu/a
 
 ## Want to contribute?
 
-Source code is hosted on [Github](https://github.com/Devenet/AdventCalendar) by [Nicolas Devenet](https://nicolas.devenet.com). Feel free to fork it and to improve the application!
+Source code is hosted on [Github](https://github.com/Devenet/AdventCalendar) by [Nicolas Devenet](https://nicolas.devenet.info). Feel free to fork it and to improve the application!
 
 Let me know if you use Advent Calendar by sending me an email, I will be happy ;-)
