@@ -119,34 +119,41 @@ abstract class Image {
 	}
 
 	static function getInfo($day) {
-		$result = array();
 		// check if we can display the request photo
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
-			$day = $day;
 			$result['url'] = '?'.URL_PHOTO.'='.$day;
 
-			$extension = '.jpg';
-			// if .jpg does not exist, load .jpeg photo
-			if (! self::exists($day.$extension)) {
-				$extension = '.jpeg';
-				// in case of .jpg or .jpeg file is not found
-				if (! self::exists($day.$extension)) {
-					// enhancement #8: use a default image when not found
-					$result['type'] = 'image/png';
-					$result['path'] = './assets/404.png';
+			$extensions = ['jpg', 'jpeg', 'png', 'gif'];
+			foreach ($extensions as $extension) {
+				$file = PRIVATE_FOLDER.'/'.$day.'.'.$extension;
+				if (file_exists($file)) {
+					$result['type'] = self::getMimeType($extension);
+					$result['path'] = $file;
 					return $result;
 				}
 			}
-			$result['type'] = 'image/jpeg';
-			$result['path'] = PRIVATE_FOLDER.'/'.$day.$extension;
 
+			// nothing found, default image
+			$result['type'] = 'image/png';
+			$result['path'] = './assets/404.png';
 			return $result;
 		}
+
 		return NULL;
 	}
 
-	static private function exists($file) {
-		return file_exists(PRIVATE_FOLDER.'/'.$file);
+	static private function getMimeType($extension) {
+		switch($extension) {
+			case 'jpg':
+			case 'jpeg':
+				return 'image/jpeg';
+			case 'png':
+				return 'image/png';
+			case 'gif':
+				return 'image/gif';
+			default:
+				return NULL;
+		}
 	}
 }
 

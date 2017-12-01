@@ -1,5 +1,7 @@
 settings.json
 private/*.jpg
 private/*.jpeg
+private/*.png
+private/*.gif
 private/calendar.json
 private/rss_cache.xml
