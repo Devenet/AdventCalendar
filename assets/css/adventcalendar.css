@@ -1,22 +1,22 @@
-@charset("utf-8");
-
 /**
  *	Developped with love by Nicolas Devenet <nicolas[at]devenet.info>
  *	Code hosted on https://github.com/Devenet/AdventCalendar
  */
 
 body {
+	background: #f8f8f8;
+}
+body, .tooltip {
 	font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
 	font-weight: 300;
-	background: #f8f8f8;
 }
 .background {
 	margin: 0;
 	padding: 20px 0;
 	overflow: hidden;
-	background: url(tree_bark.png) left top repeat fixed;
+	background: url(../img/tree_bark.png) left top repeat fixed;
 }
-.alternate-background { background: url(wave_grid.png) left top repeat fixed; }
+.alternate-background { background: url(../img/wave_grid.png) left top repeat fixed; }
 hr, .page-header { border-color: #cdcdcd; }
 nav.navbar { margin-bottom: 0; }
 .navbar { font-weight: 400; }
@@ -101,5 +101,6 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 
 footer { margin: 0 0 20px 0; }
 footer hr { margin-top: 0px; }
+footer p { font-size: 1.5em; }
 footer p a { color: #777; }
 footer .notice a { color: #888; }

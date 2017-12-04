@@ -42,6 +42,13 @@ if (file_exists(SETTINGS_FILE)) {
 	// do the user want an other background?
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
+	// do the user want a custom disclaimer?
+	if (isset($settings->disclaimer) && !empty($settings->disclaimer)) {
+		define('DISCLAIMER', $settings->disclaimer == 'none' ? NULL : $settings->disclaimer);
+	} else {
+		define('DISCLAIMER', 'Content has been added by the site owner.');
+	}
+
 	// want to add disqus thread?
 	if (isset($settings->disqus_shortname) && !empty($settings->disqus_shortname)) {
 		AddOns::Register(AddOns::AddOn('disqus', $settings->disqus_shortname));
@@ -111,6 +118,7 @@ abstract class Image {
 
 		if (!empty($img)) {
 			header('Content-type: '.$img['type']);
+			header('Content-disposition: filename="AdventCalendar-'.$day.'.'.$img['extension'].'"');
 			exit(file_get_contents($img['path']));
 		}
 
@@ -129,13 +137,15 @@ abstract class Image {
 				if (file_exists($file)) {
 					$result['type'] = self::getMimeType($extension);
 					$result['path'] = $file;
+					$result['extension'] = $extension;
 					return $result;
 				}
 			}
 
 			// nothing found, default image
 			$result['type'] = 'image/png';
-			$result['path'] = './assets/404.png';
+			$result['path'] = './assets/img/404.png';
+			$result['extension'] = 'png';
 			return $result;
 		}
 
@@ -158,7 +168,6 @@ abstract class Image {
 }
 
 class Day {
-
 	public $day;
 	public $active;
 	public $url;
@@ -170,17 +179,17 @@ class Day {
 		$this->day = $day;
 		$this->active = Advent::isActiveDay($day);
 		$this->url = '?'. URL_DAY .'='. ($this->day);
+		$this->title = 'Day '.$day;
 	}
 	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL) {
 		$this->__default($day);
-		$this->title = $title;
+		if (!empty($title)) { $this->title = $title; }
 		$this->legend = $legend;
 		$this->text = $text;
 	}
 }
 
 abstract class Advent {
-
 	const BEFORE_ADVENT = -1;
 	const CURRENT_ADVENT = 0;
 	const AFTER_ADVENT = 1;
@@ -304,13 +313,12 @@ abstract class Advent {
 	}
 
 	function bePatient($day) {
-		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Christmas is coming soon!</h3></div><div class="panel-body">But before, <strong>be patient</strong>, day '. $day .' is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
+		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">Day '. $day .' is coming soon!</h3></div><div class="panel-body">You seems to be in hurry, but <strong>be patient</strong>, it is only in few days. <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
 
 }
 
 abstract class RSS {
-
 	static protected function escape($string) {
 		return '<![CDATA['.$string.']]>';
 	}
@@ -350,7 +358,7 @@ abstract class RSS {
 		foreach (Advent::getFullDays() as $day) {
 			if ($day->active) {
 			$xml .= '<item>'.PHP_EOL;
-			$xml .= '<title>'. (empty($day->title) ? 'Day '.$day->day : self::escape($day->title)) .'</title>'.PHP_EOL;
+			$xml .= '<title>'. self::escape($day->title) .'</title>'.PHP_EOL;
 			$xml .= '<link>'.$URL.$day->url.'</link>'.PHP_EOL;
 			$xml .= '<description>'.(empty($day->text) ? '' : self::escape($day->text)).'</description>'.PHP_EOL;
 			$img = Image::getInfo($day->day);
@@ -376,7 +384,6 @@ abstract class RSS {
 /*
  * Session management
  */
-
 if (defined('PASSKEY')) {
 	// for calendars on same server, set a different cookie name based on the script path
 	session_name(md5($_SERVER['SCRIPT_NAME']));
@@ -409,8 +416,8 @@ if (defined('PASSKEY')) {
 /*
  * Load template
  */
-
 $template = NULL;
+$template_title = NULL;
 
 // need to display log form?
 if (defined('PASSKEY') && isset($loginRequested)) {
@@ -435,12 +442,16 @@ else if (isset($_GET['day'])) {
 	$day = $_GET['day'] + 0;
 	if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
 	if (Advent::isActiveDay($day)) {
+		$template_title = Advent::getDay($day)->title;
 		$template = Advent::getDayHtml($day);
 	}
-	else { $template = Advent::bePatient($day); }
+	else {
+		$template_title = 'Be patient!';
+		$template = Advent::bePatient($day);
+	}
 }
 
-// rss feed is requested (only supported for no procted Advent Calendar)
+// rss feed is requested (only supported for unprotected Advent Calendar)
 if (isset($_GET[URL_RSS])) {
 	if (!defined('PASSKEY')) { RSS::get(); }
 	else {
@@ -461,11 +472,13 @@ if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
 	if (!empty($_GET[URL_ABOUT])) { header('Location: ./?'.URL_ABOUT); exit(); }
 	$template = file_get_contents('./assets/about.html');
+	$template_title = 'About';
 }
 
 // default template is 404
 if (empty($template)) {
 	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="./" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
+	$template_title = 'Not found';	
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
 
@@ -473,20 +486,21 @@ if (empty($template)) {
 $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 ?><!doctype html>
-<html lang="fr">
+<html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title><?php echo TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
+		<title><?php echo (!empty($template_title) ? $template_title.' &middot; ' : '' ), TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
 
-		<!-- Parce qu’il y a toujours un peu d’humain derrière un site... -->
+		<!-- Parce qu’il y a toujours un peu d’humain derrière un site… -->
 		<meta name="author" content="Nicolas Devenet" />
+		<meta name="generator" content="AdventCalendar (v<?php echo VERSION; ?>) by Nicolas Devenet" />
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico" />
 		<link rel="icon" type="image/png" href="assets/favicon.png" />
 
-		<link href="assets/bootstrap.min.css" rel="stylesheet">
-		<link href="assets/adventcalendar.css" rel="stylesheet">
+		<link href="assets/css/bootstrap.min.css" rel="stylesheet">
+		<link href="assets/css/adventcalendar.css" rel="stylesheet">
 		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 
 		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink(); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
@@ -522,18 +536,21 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 		<footer>
 		<hr />
+		<?php if(!empty(DISCLAIMER)): ?>
+			<div class="disclaimer text-center"><?php echo DISCLAIMER; ?></div>
+		<?php endif; ?>
 		<div class="container">
-			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-tree-conifer"></i></a></p>
+			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="upstairs"><i class="glyphicon glyphicon-menu-up"></i></a></p>
 			<div class="notice">
-				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo VERSION; ?>
-				<br />Developed with love by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>.
+				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo implode('.', array_slice(explode('.', VERSION), 0, 2)); ?>
+				<br />Developed by <a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>
 			</div>
 		</div>
 		</footer>
 
-		<script src="assets/jquery.min.js"></script>
-		<script src="assets/bootstrap.min.js"></script>
-		<script src="assets/adventcalendar.js"></script>
+		<script src="assets/js/jquery.min.js"></script>
+		<script src="assets/js/bootstrap.min.js"></script>
+		<script src="assets/js/adventcalendar.js"></script>
 		<?php if (AddOns::Found('js')): ?>
 		<script>
 			<?php if (AddOns::Found('disqus')): ?>
