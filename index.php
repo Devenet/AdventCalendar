@@ -331,8 +331,15 @@ abstract class RSS {
 		header('Content-Type: application/rss+xml; charset=utf-8');
 
 		// can we display the cache?
-		if (file_exists(RSS_CACHE_FILE) && date("j", filemtime(RSS_CACHE_FILE)) <= date("j")) {
-			exit(file_get_contents(RSS_CACHE_FILE));
+		if (file_exists(RSS_CACHE_FILE))
+		{
+			$cache_date = filemtime(RSS_CACHE_FILE);
+			$max_cache_date = $cache_date + 3600*24;
+			$cache_day = date('j', $cache_date);
+			
+			if ($cache_date <= $max_cache_date && $cache_day <= date("j")) {
+				exit(file_get_contents(RSS_CACHE_FILE));
+			}
 		}
 
 		$URL = self::url();
