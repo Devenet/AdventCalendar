@@ -123,8 +123,8 @@ For example:
 {
   "6": {
     "title": "Saint Nicholas Day",
-		"legend": "Berlin, March 2013",
-		"text": "Lorem ipsum dolor sit amet, [...]."
+    "legend": "Berlin, March 2013",
+    "text": "Lorem ipsum dolor sit amet, [...]."
   }
 }
 ```
