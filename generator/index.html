@@ -70,6 +70,14 @@
           <span class="help-block">If filled out, visitors need to enter this password to access your AdventCalendar</span>
         </div>
         <div class="form-group">
+          <label>Language</label>
+          <select data-bind="value: settings().lang" class="form-control">
+            <option value="en" selected>English (default)</option>
+            <option value="fr">French</option>
+            <option value="de">German (partially supported)</option>
+          </select>
+        </div>
+        <div class="form-group">
           <label>Disqus shortname</label>
           <input type="text" data-bind="value: settings().disqus_shortname" class="form-control">
           <span class="help-block">Disqus account to enable comments</span>

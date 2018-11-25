@@ -33,6 +33,7 @@ function Settings() {
   self.last_day = '';
   self.background = false;
   self.passkey = '';
+  self.lang = 'en';
   self.disqus_shortname = '';
   self.google_analytics =  { tracking_id: '', domain: '' };
   self.piwik = { piwik_url: '', site_id: '' };
@@ -51,6 +52,8 @@ function Settings() {
     if (self.last_day.trim().length > 0) { o['last_day'] = self.last_day; }
     if (self.background) { o['background'] = 'alternate'; }
     if (self.passkey.trim().length > 0) { o['passkey'] = self.passkey; }
+    var lang = self.lang.trim();
+    if (lang !== 'en' && ['fr', 'de'].indexOf(lang) > -1) { o['lang'] = lang; }
     if (self.disqus_shortname.trim().length > 0) { o['disqus_shortname'] = self.disqus_shortname; }
     if (self.google_analytics.tracking_id.trim().length > 0) { o['google_analytics'] = self.google_analytics; }
     if (self.piwik.piwik_url.trim().length > 0 && self.piwik.site_id.trim().length > 0) { o['piwik'] = self.piwik; }
