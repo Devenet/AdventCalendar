@@ -523,7 +523,6 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 		<link href="assets/css/bootstrap.min.css" rel="stylesheet">
 		<link href="assets/css/adventcalendar.css" rel="stylesheet">
-		<link href="//fonts.googleapis.com/css?family=Lato:300,400,700" rel="stylesheet" type="text/css">
 
 		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink(); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
 	</head>
