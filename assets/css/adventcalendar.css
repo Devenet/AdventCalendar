@@ -7,8 +7,7 @@ body {
 	background: #f8f8f8;
 }
 body, .tooltip {
-	font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-weight: 300;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
 }
 .background {
 	margin: 0;
@@ -21,8 +20,8 @@ hr, .page-header { border-color: #cdcdcd; }
 nav.navbar { margin-bottom: 0; }
 .navbar { font-weight: 400; }
 a.navbar-brand i { margin-right: 4px; font-size: 16px; }
-p, .text { font-size: 25px; line-height: 30px; }
-.text small { font-size: 20px; }
+p, .text { font-size: 20px; line-height: 25px; }
+.text small { font-size: 15px; }
 .text-center { text-align: center; }
 .error { margin: 60px auto; width: 70%; font-size: 20px; }
 .error h3 { font-size: 30px; }
@@ -30,7 +29,6 @@ p, .text { font-size: 25px; line-height: 30px; }
 .error a.illustration-danger { color: #fed2d2; }
 .error a.illustration-danger:hover { color: #b94a48; }
 
-h1, h2, h3 { font-family: Lato, "Helvetica Neue", Helvetica, Arial, sans-serif; }
 .day-row, .day-row span, .footer a, .error a.illustration, footer p a { -webkit-transition:all linear 0.2s; -moz-transition:all linear 0.2s; -o-transition:all linear 0.2s; transition:all linear 0.2s; }
 .font-normal { font-weight: 400; }
 .espace-top { margin-top: 20px; }
@@ -97,11 +95,12 @@ a.day-row:hover { -ms-transform:scale(1.1); -webkit-transform:scale(1.1); -o-tra
 .about h2 i.glyphicon-exclamation-sign { color: #C48CE8; }
 .about h2 i.glyphicon-wrench { color: #EDD360; }
 .about p { font-size: 20px; line-height: 24px; }
-.about p code { font-size: 17px; font-family: Consolas,Monaco,Menlo,"Courier New",monospace; }
+.about p code { font-size: 17px; font-family: Consolas, Monaco, Menlo, "Courier New", monospace; }
 .about .problems strong { font-weight: 400; }
 
 footer { margin: 0 0 20px 0; }
 footer hr { margin-top: 0px; }
 footer p { font-size: 1.5em; }
 footer p a { color: #777; }
+footer .notice { font-size:.8em; }
 footer .notice a { color: #888; }

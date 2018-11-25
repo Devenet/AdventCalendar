@@ -66,7 +66,8 @@ __Feel free to use the online [settings file Generator](https://web.devenet.eu/a
 | __`disqus_shortname`__ | string | Set a Disqus account to enable comments for days |
 | __`google_analytics`__ | object | Set a Google Analytics account with a child object containing the two properties `tracking_id` and `domain` |
 | __`piwik`__ | object | Set a Piwik account with a child object containing the two properties `piwik_url` and `site_id` |
-| __`disclaimer`__ | string | Set a custom disclaimer or copyright notice |
+| __`disclaimer`__ | string | Set a custom disclaimer or copyright notice; use `none` to hide it |
+| __`lang`__ | string | Supported languages are `en` (default), `fr`, `de` |
 
 This is an example with all options:
 ```json
@@ -125,6 +126,19 @@ For example:
     "title": "Saint Nicholas Day",
     "legend": "Berlin, March 2013",
     "text": "Lorem ipsum dolor sit amet, [...]."
+  }
+}
+```
+
+#### Add a link
+
+If you want that the image and legend point to a link, add the property `link` to the `calendar.json`:
+
+```json
+{
+  "8": {
+    "legend": "Screnshot of Advent Calendar",
+    "link": "https://web.devenet.eu/advent"
   }
 }
 ```
