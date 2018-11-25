@@ -9,8 +9,9 @@ function Day(day) {
   self.title = '';
   self.legend = '';
   self.text = '';
+  self.link = '';
   self.isEmpty = function() {
-    return self.title.trim().length==0 && self.legend.trim().length==0 && self.text.trim().length==0; 
+    return self.title.trim().length==0 && self.legend.trim().length==0 && self.text.trim().length==0 && self.link.trim().length==0; 
   }
 
   self.toObject = function() {
@@ -18,6 +19,7 @@ function Day(day) {
     if (self.title.trim().length > 0) { o['title'] = self.title; }
     if (self.legend.trim().length > 0) { o['legend'] = self.legend; }
     if (self.text.trim().length > 0) { o['text'] = self.text; }
+    if (self.link.trim().length > 0) { o['link'] = self.link; }
     return o;
   }
 }
