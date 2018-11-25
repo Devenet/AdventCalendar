@@ -174,18 +174,20 @@ class Day {
 	public $title = NULL;
 	public $legend = NULL;
 	public $text = NULL;
+	public $link = NULL;
 
-	public function __default($day) {
+	protected function __default($day) {
 		$this->day = $day;
 		$this->active = Advent::isActiveDay($day);
 		$this->url = '?'. URL_DAY .'='. ($this->day);
 		$this->title = 'Day '.$day;
 	}
-	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL) {
+	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL, $link = NULL) {
 		$this->__default($day);
 		if (!empty($title)) { $this->title = $title; }
 		$this->legend = $legend;
 		$this->text = $text;
+		$this->link = $link;
 	}
 }
 
@@ -255,6 +257,7 @@ abstract class Advent {
 		$title = NULL;
 		$legend = NULL;
 		$text = NULL;
+		$link = NULL;
 		// check if we have info to display
 		if (file_exists(CALENDAR_FILE)) {
 			$file = json_decode(file_get_contents(CALENDAR_FILE));
@@ -263,9 +266,10 @@ abstract class Advent {
 				if (!empty($file->{$day}->title)) { $title = htmlspecialchars($file->{$day}->title); }
 				if (!empty($file->{$day}->legend)) { $legend = htmlspecialchars($file->{$day}->legend); }
 				if (!empty($file->{$day}->text)) { $text = $file->{$day}->text; }
+				if (!empty($file->{$day}->link)) { $link = $file->{$day}->link; }
 			}
 		}
-		return new Day($day, $title, $legend, $text);
+		return new Day($day, $title, $legend, $text, $link);
 	}
 
 	static function getDayHtml($day) {
@@ -275,6 +279,7 @@ abstract class Advent {
 		$title = $d->title;
 		$legend = $d->legend;
 		$text = $d->text;
+		$link = $d->link;
 
 		// set the day number block
 		$result .= '<a href="./?'. URL_DAY.'='. $day .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. $day .'</span></a>';
@@ -287,9 +292,19 @@ abstract class Advent {
 		$result .= '<div class="clearfix"></div>';
 
 		// display image
-		$result .= '<div class="text-center"><img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="Day '. $day .'" />';
+		$result .= '<div class="text-center">';
+		if (!empty($link)) { $result .= '<a href="'. $link .'" rel="external">'; }
+		$result .= '<img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'" />';
+		if (!empty($link)) { $result .= '</a>'; }
+
 		// do we have a legend?
-		if (!empty($legend)) { $result .= '<p class="legend">&mdash; '.$legend.'</p>'; }
+		if (!empty($legend)) {
+			$result .= '<p class="legend">&mdash; ';
+			if (!empty($link)) { $result .= '<a href="'. $link .'" rel="external">'; }
+			$result.= $legend;
+			if (!empty($link)) { $result .= '</a>'; }
+			$result .= '</p>';
+		}
 		$result .= '</div>';
 		// clearfix
 		$result .= '<div class="clearfix"></div>';

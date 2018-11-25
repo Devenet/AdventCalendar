@@ -129,6 +129,19 @@ For example:
 }
 ```
 
+#### Add a link
+
+If you want that the image and legend point to a link, add the property `link` to the `calendar.json`:
+
+```json
+{
+  "8": {
+    "legend": "Screnshot of Advent Calendar",
+    "link": "https://web.devenet.eu/advent"
+  }
+}
+```
+
 __Feel free to use the online [calendar file Generator](https://web.devenet.eu/advent/generator/#calendar) to easily build your `calendar.json` file, and then put it into the `private` folder.__
 
 
