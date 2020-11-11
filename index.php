@@ -623,7 +623,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 		<footer>
 		<hr />
-		<?php if(!empty(COPYRIGHT)): ?>
+		<?php if(defined('COPYRIGHT')): ?>
 			<div class="copyright text-center"><?php echo COPYRIGHT; ?></div>
 		<?php endif; ?>
 		<div class="container">
