@@ -78,7 +78,7 @@ else { die('<!doctype html><html><head><title>'.ADVENT_CALENDAR.'</title><style>
 // is the directory writable ?
 if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 // are photos deny from web access? [just in case]
-if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/.htaccess', 'Deny from all'); }
+if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/.htaccess', 'Require all denied'); }
 if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 
 /*
@@ -119,7 +119,8 @@ abstract class AddOns {
 
 abstract class I18n {
 	static $translations = [
-		'day' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
+		'day-d' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
+		'day' => [ 'en' => 'day', 'fr' => 'jour', 'de' => 'Tag' ],
 		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern' ],
 		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' ],
 		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!' ],
@@ -158,7 +159,7 @@ abstract class Image {
 
 		if (!empty($img)) {
 			header('Content-type: '.$img['type']);
-			header('Content-disposition: filename="advent-calendar_'.$day.'.'.$img['extension'].'"');
+			header('Content-disposition: filename="'.I18n::translation('day').'-'.$day.'.'.$img['extension'].'"');
 			exit(file_get_contents($img['path']));
 		}
 
@@ -220,7 +221,7 @@ class Day {
 		$this->day = $day;
 		$this->active = Advent::isActiveDay($day);
 		$this->url = '?'. URL_DAY .'='. ($this->day);
-		$this->title = I18n::translation('day', $day);
+		$this->title = I18n::translation('day-d', $day);
 	}
 	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL, $link = NULL) {
 		$this->__default($day);
@@ -284,7 +285,7 @@ abstract class Advent {
 	static function getDaysHtml() {
 		$result = '<div class="container days">';
 		foreach (self::getDays() as $d) {
-			if ($d->active) { $result .= '<a href="'. $d->url .'" title="'. I18n::translation('day', $d->day) .'"'; }
+			if ($d->active) { $result .= '<a href="'. $d->url .'" title="'. I18n::translation('day-d', $d->day) .'"'; }
 			else { $result .= '<div'; }
 			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .' tip" data-placement="bottom"><span>'. ($d->day) .'</span>';
 			if ($d->active) { $result .= '</a>'; }
@@ -403,11 +404,11 @@ abstract class RSS {
 		$xml .= '<atom:link href="'.$URL.'?'.URL_RSS.'" rel="self" type="application/rss+xml" />'.PHP_EOL;
 		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
 		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
-		$xml .= '<description>'.self::escape('RSS feed of '.TITLE. ' · Advent Calendar').'</description>'.PHP_EOL;
+		$xml .= '<description>'.self::escape('RSS feed of '.TITLE).'</description>'.PHP_EOL;
 		$xml .= '<pubDate>'.date("D, d M Y H:i:s O", (file_exists(RSS_CACHE_FILE) ? filemtime(RSS_CACHE_FILE) : time())).'</pubDate>'.PHP_EOL;
 		$xml .= '<ttl>1440</ttl>'.PHP_EOL; // 24 hours
 		$xml .= '<copyright>'.$URL.'</copyright>'.PHP_EOL;
-		$xml .= '<language>en-EN</language>'.PHP_EOL;
+		$xml .= '<language>'.LANGUAGE.'</language>'.PHP_EOL;
 		$xml .= '<generator>Advent Calendar</generator>'.PHP_EOL;
 		$xml .= '<image>'.PHP_EOL;
 		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
@@ -550,7 +551,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title><?php echo (!empty($template_title) ? $template_title.' &middot; ' : '' ), TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
+		<title><?php echo (!empty($template_title) ? $template_title.' &middot; ' : '' ), TITLE; ?></title>
 
 		<!-- Parce qu’il y a toujours un peu d’humain derrière un site… -->
 		<meta name="author" content="Nicolas Devenet" />
