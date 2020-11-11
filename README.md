@@ -50,7 +50,7 @@ Copy the `settings.example.json` file on folder `private` to `settings.json` and
 The minimum required configuration file must contains:
 ```json
 {
-  "title": "my Advent Calendar",
+  "title": "Advent Calendar · 2020",
   "year": 2020
 }
 ```
@@ -93,7 +93,7 @@ It will make a countdown calendar for March from the 8th to the 31th.
 This is an example with all options:
 ```json
 {
-  "title": "my Advent Calendar",
+  "title": "Advent Calendar · 2020",
   "year": 2020,
   "month": 12,
   "first_day": 1,
