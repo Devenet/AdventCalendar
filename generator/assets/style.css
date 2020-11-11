@@ -5,6 +5,7 @@ body, h1, h1 small {
 h1 small { font-weight: normal; }
 .space-top { margin-top: 10px; }
 .space-top-md { margin-top: 20px; }
+.space-top-lg { margin-top: 35px; }
 .space-bottom-md { margin-bottom: 20px; }
 .space-left { margin-left: 10px; }
 .no-space-top { margin-top: 0; }

@@ -12,21 +12,20 @@
 </head>
 <body>
 
-  <div class="container">
-    <div class="page-header">
-      <h1>
-        Generator
-        <small>AdventCalendar</small>
-      </h1>
-    </div>
+  <div class="page-header">
+    <h1 class="container">
+      Generator
+      <small>AdventCalendar</small>
+    </h1>
+  </div>
 
+  <div class="container">
     <div class="lead">
       I want to generate the file <select data-bind="options: availableGenerators, value: selectedGenerator, event: {change: generatorChanged}"></select>.
       <button class="space-left btn btn-primary" data-bind="click: download, enable: enableDownload">Download</button>
     </div>
     <hr>
   </div>
-
 
   <div class="container" data-bind="visible: (selectedGenerator() == 'calendar.json')">
     <h3 class="no-space-top pull-left"><code>calendar.json</code></h3>
@@ -53,13 +52,32 @@
     <h3 class="no-space-top"><code>settings.json</code></h3>
     <div class="clearfix"></div>
     <div class="form row">
-      <div class="col-md-4">
+      <div class="col-md-6">
         <div class="form-group" data-bind="css: !settings().isValidTitle() ? 'has-error' : ''">
           <label class="control-label">Title <small>required</small></label>
           <input type="text" data-bind="value: settings().title" class="form-control" required>
         </div>
+      </div>
+      <div class="col-md-6">
+        <div class="form-group" data-bind="css: !settings().isValidYear() ? 'has-error' : ''">
+          <label class="control-label">Year <small>required</small></label>
+          <input type="number" data-bind="value: settings().year" class="form-control" required>
+        </div>
+      </div>
+    </div>
+    <hr>
+    <div class="form row">
+      <div class="col-md-4">
         <div class="checkbox">
-          <label><input type="checkbox" data-bind="value: settings().background"> Use alternate background</label>
+          <label><input type="checkbox" data-bind="value: settings().background"> Use alternate background image</label>
+        </div>
+        <div class="form-group">
+          <label>Language</label>
+          <select data-bind="value: settings().lang" class="form-control">
+            <option value="en" selected>English (default)</option>
+            <option value="fr">French</option>
+            <option value="de">German</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Passkey</label>
@@ -70,27 +88,19 @@
           <span class="help-block">If filled out, visitors need to enter this password to access your AdventCalendar</span>
         </div>
         <div class="form-group">
-          <label>Language</label>
-          <select data-bind="value: settings().lang" class="form-control">
-            <option value="en" selected>English (default)</option>
-            <option value="fr">French</option>
-            <option value="de">German (partially supported)</option>
-          </select>
-        </div>
-        <div class="form-group">
           <label>Disqus shortname</label>
           <input type="text" data-bind="value: settings().disqus_shortname" class="form-control">
           <span class="help-block">Disqus account to enable comments</span>
+        </div>
+        <hr>
+        <div class="checkbox">
+          <label><input type="checkbox" data-bind="value: settings().url_rewriting"> Enable rewriting for no query string URL</label>
+          <span class="help-block">⚠ If checked, you must also uncomment lines in the root <code>.htaccess</code> file.</span>
         </div>
       </div>
 
       <div class="col-md-4">
         <hr class="hidden-md hidden-lg">
-        <div class="form-group" data-bind="css: !settings().isValidYear() ? 'has-error' : ''">
-          <label class="control-label">Year <small>required</small></label>
-          <input type="number" data-bind="value: settings().year" class="form-control" required>
-        </div>
-        <hr>
         <span class="help-block">Fill out to transform your AdventCalendar into CountDownCalendar</span>
         <div class="form-group">
           <label>Month</label>
@@ -108,7 +118,7 @@
 
       <div class="col-md-4">
         <hr class="hidden-md hidden-lg">
-        <span class="help-block">Fill out to enable <b>Google Analytics</b> tracking</span>
+        <div class="help-block">Fill out to enable <b>Google Analytics</b> tracking</div>
         <div class="form-group">
           <label>GA Tracking ID</label>
           <input type="text" data-bind="value: settings().google_analytics.tracking_id" class="form-control" placeholder="UC-12345-1">
@@ -117,8 +127,8 @@
           <label>GA Tracking Domain</label>
           <input type="text" data-bind="value: settings().google_analytics.domain" class="form-control" placeholder="auto">
         </div>
-        <hr>
-        <span class="help-block">Fill out to enable <b>Piwik</b> tracking</span>
+
+        <div class="help-block space-top-lg">Fill out to enable <b>Piwik</b> tracking</div>
         <div class="form-group">
           <label>Piwik URL</label>
           <input type="url" data-bind="value: settings().piwik.piwik_url" class="form-control" placeholder="https://piwik.domain.tld">
@@ -126,6 +136,17 @@
         <div class="form-group">
           <label>Piwik Site ID</label>
           <input type="text" data-bind="value: settings().piwik.site_id" class="form-control" placeholder="12345">
+        </div>
+        
+        <div class="help-block space-top-lg">Fill out to enable <b>Plausible</b> tracking</div>
+        <div class="form-group">
+          <label>Plausible <code>data-domain</code></label>
+          <input type="text" data-bind="value: settings().plausible.domain" class="form-control" placeholder="domain.tld">
+        </div>
+        <div class="form-group">
+          <label>Plausible custom <code>src</code></label>
+          <input type="url" data-bind="value: settings().plausible.custom_src" class="form-control" placeholder="https://stats.domain.tld/js/index.js">
+          <span class="help-block">Only if you use a CNAME custom domain to serve the tracking script.</span>
         </div>
       </div>
     </div>
@@ -136,13 +157,16 @@
   <hr>
 
   <div class="container space-bottom-md">
-    <p><a href="https://github.com/Devenet/AdventCalendar/tree/demo/generator" rel="externale">AdventCalendar Generator</a> by <a href="https://nicolas.devenet.info" rel="external">Nicolas Devenet</a></p>
+    <p class="pull-left"><a href="https://github.com/Devenet/AdventCalendar/tree/demo/generator" rel="external">AdventCalendar Generator</a> by <a href="https://nicolas.devenet.info" rel="external">Nicolas Devenet</a></p>
+    <p class="pull-right text-right"><a href="../" class="">Return to Advent Calendar</a></p>
   </div>
+  
 
   <script src="../assets/js/jquery.min.js"></script>
   <script src="../assets/js/bootstrap.min.js"></script>
   <script src="./assets/knockout.min.js"></script>
   <script src="./assets/filesaver.min.js"></script>
   <script src="./assets/scripts.js"></script>
+  <script async defer data-domain="devenet.eu" src="https://stats.devenet.eu/js/index.js"></script>
 </body>
 </html>

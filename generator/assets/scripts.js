@@ -26,17 +26,19 @@ function Day(day) {
 
 function Settings() {
   var self = this;
-  self.title = ko.observable('AdventCalendar');
+  self.title = ko.observable('Advent Calendar · ' + (new Date()).getFullYear());
   self.year = ko.observable(new Date().getFullYear().toString());
   self.month = '';
   self.first_day = '';
   self.last_day = '';
   self.background = false;
-  self.passkey = '';
   self.lang = 'en';
+  self.passkey = '';
   self.disqus_shortname = '';
+  self.url_rewriting = false;
   self.google_analytics =  { tracking_id: '', domain: '' };
   self.piwik = { piwik_url: '', site_id: '' };
+  self.plausible = { domain: '', custom_src: '' };
 
   self.isValidTitle = ko.computed(function() { return self.title().trim().length > 0; });
   self.isValidYear = ko.computed(function() { return self.year().trim().length > 0; });
@@ -51,12 +53,20 @@ function Settings() {
     if (self.first_day.trim().length > 0) { o['first_day'] = self.first_day; }
     if (self.last_day.trim().length > 0) { o['last_day'] = self.last_day; }
     if (self.background) { o['background'] = 'alternate'; }
-    if (self.passkey.trim().length > 0) { o['passkey'] = self.passkey; }
     var lang = self.lang.trim();
     if (lang !== 'en' && ['fr', 'de'].indexOf(lang) > -1) { o['lang'] = lang; }
+    if (self.passkey.trim().length > 0) { o['passkey'] = self.passkey; }
     if (self.disqus_shortname.trim().length > 0) { o['disqus_shortname'] = self.disqus_shortname; }
+    if (self.url_rewriting) { o['url_rewriting'] = 'url_rewriting'; }
     if (self.google_analytics.tracking_id.trim().length > 0) { o['google_analytics'] = self.google_analytics; }
     if (self.piwik.piwik_url.trim().length > 0 && self.piwik.site_id.trim().length > 0) { o['piwik'] = self.piwik; }
+    if (self.plausible.domain.trim().length > 0) {
+      if (self.plausible.custom_src.trim().length == 0) {
+        o['plausible'] = {'domain': self.plausible.domain};
+      } else {
+        o['plausible'] = self.plausible;
+      }
+    }
     return o;
   };
 }
