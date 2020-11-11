@@ -55,8 +55,6 @@ The minimum required configuration file must contains:
 }
 ```
 
-_Feel free to use the online [settings file generator](https://www.devenet.eu/advent/generator/#settings) to easily build your `settings.json` file, and then put it into the `private` folder._
-
 ### Transform AdventCalendar into CountDownCalendar
 
 If you want, you can also customize month, first day and last day which are used to display the period of days, but it's not really an AdventCalendar anymore ;-)
@@ -73,6 +71,8 @@ It will make a countdown calendar for March from the 8th to the 31th.
 
 ### Full available options
 
+_Feel free to use the online [settings file generator](https://www.devenet.eu/advent/generator/#settings) to easily build your `settings.json` file, and then put it into the `private` folder._
+
 | Property | Type | Description |
 | --- | --- | --- |
 | __`title`__ | string | __Required__ Set the title of your AdventCalendar. |
@@ -88,6 +88,7 @@ It will make a countdown calendar for March from the 8th to the 31th.
 | __`piwik`__ | object | Set a Piwik account with a child object containing the two properties `piwik_url` and `site_id`. |
 | __`plausible`__ | object | Set a Plausible account with a child object containing the property `domain` for _data-domain_, and if you use a CNAME custom domain the property `custom_src` with the full URL in the Plausible _src_ configuration. |
 | __`copyright`__ | string | Set a copyright notice; not displayed if empty (default). |
+| __`url_rewriting`__ | boolean | Set to `true` to enable rewriting URL and uncomment lines in the root `.htaccess` file. Default is `false`. |
 
 
 This is an example with all options:
@@ -114,7 +115,8 @@ This is an example with all options:
     "domain": "domain.tld",
     "custom_src": "https://cname.domain.tld/js/index.js"
   },
-  "copyright": "All content is under Creative Commons BY-NC 3.0 licence."
+  "copyright": "All content is under Creative Commons BY-NC 3.0 licence.",
+  "url_rewriting": false
 }
 ```
 
@@ -131,6 +133,8 @@ __Be sure that the access to `private` folder is forbidden when browsing it!__
 For Apache configuration, be sure that a `.htaccess` file with the directive `Require all denied` is in and read.
 
 ### Customize legend and title
+
+_Feel free to use the online [calendar file generator](https://web.devenet.eu/advent/generator/#calendar) to easily build your `calendar.json` file, and then put it into the `private` folder._
 
 To add a title, a legend or a text on a day page, just rename `calendar.example.json` in folder `private` in `calendar.json` and add what you want to display.
 
@@ -158,9 +162,6 @@ If you want that the image and legend point to a link, add the property `link` t
   }
 }
 ```
-
-_Feel free to use the online [calendar file generator](https://web.devenet.eu/advent/generator/#calendar) to easily build your `calendar.json` file, and then put it into the `private` folder._
-
 
 ![A day with title, legend and text](adventcalendar-day.jpg)
 
