@@ -8,12 +8,13 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.5.0');
+define('VERSION', '1.6.0');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
 define('URL_ABOUT', 'about');
 define('URL_RSS', 'rss');
+define('URL_LOGOUT', 'logout');
 define('PRIVATE_FOLDER', './private');
 define('SETTINGS_FILE', PRIVATE_FOLDER.'/settings.json');
 define('CALENDAR_FILE', PRIVATE_FOLDER.'/calendar.json');
@@ -43,17 +44,13 @@ if (file_exists(SETTINGS_FILE)) {
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
 	// what language?
-	if (isset($settings->lang) && !empty($settings->lang) && in_array(mb_strtolower($settings->lang), ['en', 'fr', 'de'])) {
+	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de'])) {
 		define('LANGUAGE', $settings->lang);
 	} else { define('LANGUAGE', 'en'); }
 
-	// do the user want a custom disclaimer?
-	if (isset($settings->disclaimer) && !empty($settings->disclaimer)) {
-		define('DISCLAIMER', $settings->disclaimer == 'none' ? NULL : $settings->disclaimer);
-	} else {
-		$disclaimer = 'Content has been added by the site owner.';
-		if (LANGUAGE == 'fr') { $disclaimer = 'Contenu ajouté par le propriétaire du site.'; }
-		define('DISCLAIMER', $disclaimer);
+	// do the user want a copyright?
+	if (isset($settings->copyright) && !empty($settings->copyright)) {
+		define('COPYRIGHT', $settings->copyright);
 	}
 
 	// want to add disqus thread?
@@ -71,13 +68,21 @@ if (file_exists(SETTINGS_FILE)) {
 		AddOns::Register(AddOns::AddOn('piwik', AddOns::JsonToArray($settings->piwik)));
 		AddOns::JavaScriptRegistred();
 	}
+
+	// want to add plausible?
+	if (isset($settings->plausible) && !empty($settings->plausible) && isset($settings->plausible->domain)) {
+		AddOns::Register(AddOns::AddOn('plausible', AddOns::JsonToArray($settings->plausible)));
+	}
+
+	// want to rewrite URL?
+	if (isset($settings->url_rewriting) && $settings->url_rewriting) { define('URL_REWRITING', TRUE); }
 }
 else { die('<!doctype html><html><head><title>'.ADVENT_CALENDAR.'</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
 
 // is the directory writable ?
 if (!is_writable(realpath(dirname(__FILE__)))) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 // are photos deny from web access? [just in case]
-if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/.htaccess', 'Deny from all'); }
+if (!is_file(PRIVATE_FOLDER.'/.htaccess')) { file_put_contents(PRIVATE_FOLDER.'/.htaccess', 'Require all denied'); }
 if (!is_file(PRIVATE_FOLDER.'/.htaccess')) die('<div><strong>Oups!</strong> Application does not have the right to write in its own directory <code>'.realpath(dirname(__FILE__)).'</code>.</div>');
 
 /*
@@ -116,34 +121,66 @@ abstract class AddOns {
 	}
 }
 
+abstract class Routes {
+	static $base;
+	static $query_string;
+
+	static function initialize() {
+		if (empty(self::$base)) {
+			self::$base = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+			self::$query_string = !defined('URL_REWRITING');
+		}
+	}
+
+	static private function url($page, $arg) {
+		if (empty($page)) return;
+
+		// default is query string
+		if (self::$query_string) {
+			return '?'.$page.(!empty($arg) ? '='.$arg : '');
+		}
+		// rewriting url
+		else {
+			$page = str_replace(URL_DAY, strtolower(I18n::translation('day')), $page);
+			return $page.(!empty($arg) ? '/'.$arg : '');
+		}
+	}
+
+	static function route($page = null, $arg = null) {
+		return self::$base . self::url($page, $arg);
+	}
+}
+Routes::initialize();
+
 abstract class I18n {
 	static $translations = [
-		'day' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
+		'day-d' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
+		'day' => [ 'en' => 'day', 'fr' => 'jour', 'de' => 'Tag' ],
 		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern' ],
 		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' ],
-		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Geduld!' ],
+		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!' ],
 		'be-patient-panel-title' => [
 			'en' => 'Day {arg} is coming soon!',
 			'fr' => 'Le jour {arg} arrive bientôt !',
-			'de' => 'Der Tag {arg} kommt gleich!'
+			'de' => 'Der Tag {arg} kommt bald!'
 		],
 		'be-patient-text' => [
 			'en' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.',
 			'fr' => 'Vous semblez pressé·e, <strong>patience</strong>, c’est seulement dans quelques jours.',
-			'de' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.'
+			'de' => 'Du scheinst es kaum erwarten zu können. Aber <strong>sei geduldig</strong>, es sind nur noch wenige Tage.'
 		],
-		'developed-by' => [ 'en' => 'Developed by {arg}', 'fr' => 'Développé par {arg}', 'de' => 'Developed by {arg}' ],
-		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'Treppe' ],
-		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'about' ],
-		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'About' ],
-		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'This is a private area!' ],
+		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'entwickelt von {arg}' ],
+		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'nach oben' ],
+		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'über' ],
+		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'Über' ],
+		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'Dies ist ein privater Bereich!' ],
 		'private-area-signin' => [
 			'en' => 'Please sign in with your <b>passkey</b> to continue.',
 			'fr' => 'Connectez-vous avec votre <b>mot de passe</b> pour continuer.',
-			'de' => 'Please sign in with your <b>passkey</b> to continue.',
+			'de' => 'Bitte melde dich mit deinem <b>Passkey</b> an, um fortzufahren.',
 		],
-		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'sign in' ],
-		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'logout' ],
+		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden' ],
+		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden' ],
 	];
 
 	static function translation($text, $arg = null) {
@@ -157,18 +194,18 @@ abstract class Image {
 
 		if (!empty($img)) {
 			header('Content-type: '.$img['type']);
-			header('Content-disposition: filename="advent-calendar_'.$day.'.'.$img['extension'].'"');
+			header('Content-disposition: filename="'.I18n::translation('day').'-'.$day.'.'.$img['extension'].'"');
 			exit(file_get_contents($img['path']));
 		}
 
-		header('Location: ./');
+		header('Location: '.Routes::route());
 		exit();
 	}
 
 	static function getInfo($day) {
 		// check if we can display the request photo
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
-			$result['url'] = '?'.URL_PHOTO.'='.$day;
+			$result['url'] = Routes::route(URL_PHOTO, $day);
 
 			$extensions = ['jpg', 'jpeg', 'png', 'gif'];
 			foreach ($extensions as $extension) {
@@ -218,8 +255,8 @@ class Day {
 	protected function __default($day) {
 		$this->day = $day;
 		$this->active = Advent::isActiveDay($day);
-		$this->url = '?'. URL_DAY .'='. ($this->day);
-		$this->title = I18n::translation('day', $day);
+		$this->url = Routes::route(URL_DAY, $day);
+		$this->title = I18n::translation('day-d', $day);
 	}
 	public function __construct($day, $title = NULL, $legend = NULL, $text = NULL, $link = NULL) {
 		$this->__default($day);
@@ -283,9 +320,9 @@ abstract class Advent {
 	static function getDaysHtml() {
 		$result = '<div class="container days">';
 		foreach (self::getDays() as $d) {
-			if ($d->active) { $result .= '<a href="'. $d->url .'" title="'. I18n::translation('day', $d->day) .'"'; }
+			if ($d->active) { $result .= '<a href="'. $d->url .'" title="'. I18n::translation('day-d', $d->day) .'"'; }
 			else { $result .= '<div'; }
-			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .'"><span>'. ($d->day) .'</span>';
+			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .' tip" data-placement="bottom"><span>'. ($d->day) .'</span>';
 			if ($d->active) { $result .= '</a>'; }
 			else { $result .= '</div>'; }
 		}
@@ -321,7 +358,7 @@ abstract class Advent {
 		$link = $d->link;
 
 		// set the day number block
-		$result .= '<a href="./?'. URL_DAY.'='. $day .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. $day .'</span></a>';
+		$result .= '<a href="'. Routes::route(URL_DAY, $day) .'" class="day-row '. self::getDayColorClass($day, TRUE) .'"><span>'. $day .'</span></a>';
 		// set the title
 		$result .= '<h1><span>';
 		if (!empty($title)) { $result .= $title; }
@@ -333,7 +370,7 @@ abstract class Advent {
 		// display image
 		$result .= '<div class="text-center">';
 		if (!empty($link)) { $result .= '<a href="'. $link .'" rel="external">'; }
-		$result .= '<img src="./?'.URL_PHOTO.'='. $day .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'" />';
+		$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'" />';
 		if (!empty($link)) { $result .= '</a>'; }
 
 		// do we have a legend?
@@ -353,10 +390,10 @@ abstract class Advent {
 
 		// we do not forget the pagination
 		$result .= '<ul class="pager"><li class="previous';
-		if (self::isActiveDay($day-1) && ($day-1)>=FIRST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day-1) .'" title="'. I18n::translation('previous-link-title') .'" class="tip" data-placement="right">'; }
+		if (self::isActiveDay($day-1) && ($day-1)>=FIRST_DAY) { $result .= '"><a href="'. Routes::route(URL_DAY, $day-1) .'" title="'. I18n::translation('previous-link-title') .'" class="tip" data-placement="right">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-left"></i></a></li><li class="next';
-		if (self::isActiveDay($day+1) && ($day+1)<=LAST_DAY) { $result .= '"><a href="?'. URL_DAY .'='. ($day+1) .'" title="'. I18n::translation('next-link-title') .'" class="tip" data-placement="left">'; }
+		if (self::isActiveDay($day+1) && ($day+1)<=LAST_DAY) { $result .= '"><a href="'. Routes::route(URL_DAY, $day+1) .'" title="'. I18n::translation('next-link-title') .'" class="tip" data-placement="left">'; }
 		else { $result .= ' disabled"><a>'; }
 		$result .= '<i class="glyphicon glyphicon-hand-right"></i></a></li></ul>';
 
@@ -367,17 +404,13 @@ abstract class Advent {
 	}
 
 	static function bePatient($day) {
-		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">'. I18n::translation('be-patient-panel-title', $day) .'</h3></div><div class="panel-body">'. I18n::translation('be-patient-text') .' <a href="./" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
+		return '<div class="container error"><div class="panel panel-info"><div class="panel-heading"><h3 class="panel-title">'. I18n::translation('be-patient-panel-title', $day) .'</h3></div><div class="panel-body">'. I18n::translation('be-patient-text') .' <a href="'. Routes::route() .'" class="illustration text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	}
 }
 
 abstract class RSS {
 	static protected function escape($string) {
 		return '<![CDATA['.$string.']]>';
-	}
-
-	static function url() {
-		return (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
 	}
 
 	static public function get() {
@@ -395,23 +428,22 @@ abstract class RSS {
 			}
 		}
 
-		$URL = self::url();
 		$xml  = '<?xml version="1.0" encoding="UTF-8"?>'.PHP_EOL;
 		$xml .= '<rss version="2.0"  xmlns:atom="http://www.w3.org/2005/Atom">'.PHP_EOL;
 		$xml .= '<channel>'.PHP_EOL;
-		$xml .= '<atom:link href="'.$URL.'?'.URL_RSS.'" rel="self" type="application/rss+xml" />'.PHP_EOL;
+		$xml .= '<atom:link href="'.Routes::route(URL_RSS).'" rel="self" type="application/rss+xml" />'.PHP_EOL;
 		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
-		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
-		$xml .= '<description>'.self::escape('RSS feed of '.TITLE. ' · Advent Calendar').'</description>'.PHP_EOL;
+		$xml .= '<link>'.Routes::route().'</link>'.PHP_EOL;
+		$xml .= '<description>'.self::escape('RSS feed of '.TITLE).'</description>'.PHP_EOL;
 		$xml .= '<pubDate>'.date("D, d M Y H:i:s O", (file_exists(RSS_CACHE_FILE) ? filemtime(RSS_CACHE_FILE) : time())).'</pubDate>'.PHP_EOL;
 		$xml .= '<ttl>1440</ttl>'.PHP_EOL; // 24 hours
-		$xml .= '<copyright>'.$URL.'</copyright>'.PHP_EOL;
-		$xml .= '<language>en-EN</language>'.PHP_EOL;
+		$xml .= '<copyright>'.Routes::route().'</copyright>'.PHP_EOL;
+		$xml .= '<language>'.LANGUAGE.'</language>'.PHP_EOL;
 		$xml .= '<generator>Advent Calendar</generator>'.PHP_EOL;
 		$xml .= '<image>'.PHP_EOL;
 		$xml .= '<title>'.self::escape(TITLE).'</title>'.PHP_EOL;
-		$xml .= '<url>'.$URL.'assets/favicon.png</url>'.PHP_EOL;
-		$xml .= '<link>'.$URL.'</link>'.PHP_EOL;
+		$xml .= '<url>'.Routes::route().'assets/favicon.png</url>'.PHP_EOL;
+		$xml .= '<link>'.Routes::route().'</link>'.PHP_EOL;
 		$xml .= '<width>48</width>'.PHP_EOL;
 		$xml .= '<height>48</height>'.PHP_EOL;
 		$xml .= '</image>'.PHP_EOL;
@@ -419,13 +451,13 @@ abstract class RSS {
 			if ($day->active) {
 			$xml .= '<item>'.PHP_EOL;
 			$xml .= '<title>'. self::escape($day->title) .'</title>'.PHP_EOL;
-			$xml .= '<link>'.$URL.$day->url.'</link>'.PHP_EOL;
+			$xml .= '<link>'.$day->url.'</link>'.PHP_EOL;
 			$xml .= '<description>'.(empty($day->text) ? '' : self::escape($day->text)).'</description>'.PHP_EOL;
 			$img = Image::getInfo($day->day);
-			$xml .= '<enclosure url="'.$URL.$img['url'].'" length="'.filesize($img['path']).'" type="'.$img['type'].'" />'.PHP_EOL;
+			$xml .= '<enclosure url="'.$img['url'].'" length="'.filesize($img['path']).'" type="'.$img['type'].'" />'.PHP_EOL;
 			$xml .= '<guid isPermaLink="false">'.$day->day.'</guid>'.PHP_EOL;
 			$xml .= '<pubDate>'.date("D, d M Y 00:00:00 O", mktime(0, 0, 0, MONTH, $day->day, YEAR)).'</pubDate>'.PHP_EOL;
-			$xml .= '<source url="'.$URL.'?'.URL_RSS.'">'.self::escape(TITLE).'</source>'.PHP_EOL;
+			$xml .= '<source url="'.Routes::route(URL_RSS).'">'.self::escape(TITLE).'</source>'.PHP_EOL;
 			$xml .= '</item>'.PHP_EOL;
 			}
 		}
@@ -434,10 +466,6 @@ abstract class RSS {
 
 		file_put_contents(RSS_CACHE_FILE, $xml);
 		exit($xml);
-	}
-
-	static public function getLink() {
-		return self::url().'?'.URL_RSS;
 	}
 }
 
@@ -451,10 +479,10 @@ if (defined('PASSKEY')) {
 	session_start();
 
 	// want to log out
-	if (isset($_GET['logout'])) {
+	if (isset($_GET[URL_LOGOUT])) {
 		$_SESSION['welcome'] = FALSE;
 		session_destroy();
-		header('Location: ./');
+		header('Location: '.Routes::route());
 		exit();
 	}
 
@@ -462,7 +490,7 @@ if (defined('PASSKEY')) {
 	if (isset($_POST['credential']) && !empty($_POST['credential'])) {
 		if ($_POST['credential'] == PASSKEY) {
 			$_SESSION['welcome'] = TRUE;
-			header('Location: ./');
+			header('Location: '.Routes::route());
 			exit();
 		}
 	}
@@ -500,7 +528,7 @@ else if (empty($_GET)) {
 // want to display a day
 else if (isset($_GET['day'])) {
 	$day = $_GET['day'] + 0;
-	if (! Advent::acceptDay($day)) { header('Location: ./'); exit(); }
+	if (! Advent::acceptDay($day)) { header('Location: '.Routes::route()); exit(); }
 	if (Advent::isActiveDay($day)) {
 		$template_title = Advent::getDay($day)->title;
 		$template = Advent::getDayHtml($day);
@@ -521,7 +549,7 @@ if (isset($_GET[URL_RSS])) {
 			<div class="page-header"><h1 class="text-warning">Functionality not supported</h1></div>
 			<div class="espace-lg">
 				<p>The RSS feed is not available for a protected '.ADVENT_CALENDAR.'.</p>
-				<p><a href="./" class="text-center tip" title="home" data-placement="bottom"><i class="glyphicon glyphicon-home"></i></a></p>
+				<p><a href="'. Routes::route() .'" class="text-center tip" title="home" data-placement="bottom"><i class="glyphicon glyphicon-home"></i></a></p>
 			</div>
 		</div>';
 	}
@@ -530,14 +558,14 @@ if (isset($_GET[URL_RSS])) {
 // want to display about page [no need to be logged in to access]
 if (isset($_GET[URL_ABOUT])) {
 	// if ugly URL
-	if (!empty($_GET[URL_ABOUT])) { header('Location: ./?'.URL_ABOUT); exit(); }
+	if (!empty($_GET[URL_ABOUT])) { header('Location: '.Routes::route(URL_ABOUT)); exit(); }
 	$template = file_get_contents('./assets/about.html');
 	$template_title = I18n::translation('about-title');
 }
 
 // default template is 404
 if (empty($template)) {
-	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="./" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
+	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="'. Routes::route() .'" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
 	$template_title = 'Not found';	
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
@@ -549,20 +577,20 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<title><?php echo (!empty($template_title) ? $template_title.' &middot; ' : '' ), TITLE, ' &middot; ', ADVENT_CALENDAR; ?></title>
+		<title><?php echo (!empty($template_title) ? $template_title.' &middot; ' : '' ), TITLE; ?></title>
 
 		<!-- Parce qu’il y a toujours un peu d’humain derrière un site… -->
 		<meta name="author" content="Nicolas Devenet" />
 		<meta name="generator" content="AdventCalendar (v<?php echo VERSION; ?>) by Nicolas Devenet" />
 
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<link rel="shortcut icon" type="image/x-icon" href="assets/favicon.ico" />
-		<link rel="icon" type="image/png" href="assets/favicon.png" />
+		<link rel="shortcut icon" type="image/x-icon" href="<?= Routes::route() ?>assets/favicon.ico" />
+		<link rel="icon" type="image/png" href="<?= Routes::route() ?>assets/favicon.png" />
 
-		<link href="assets/css/bootstrap.min.css" rel="stylesheet">
-		<link href="assets/css/adventcalendar.css" rel="stylesheet">
+		<link href="<?= Routes::route() ?>assets/css/bootstrap.min.css" rel="stylesheet">
+		<link href="<?= Routes::route() ?>assets/css/adventcalendar.css" rel="stylesheet">
 
-		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo RSS::getLink(); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
+		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo Routes::route(URL_RSS); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
 	</head>
 
 	<body>
@@ -570,17 +598,17 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		<nav class="navbar navbar-default navbar-static-top" role="navigation">
 		<div class="container">
 		<div class="navbar-header">
-		<a class="navbar-brand tip" href="./" title="home" data-placement="right"><i class="glyphicon glyphicon-home"></i> <?php echo TITLE; ?></a>
+		<a class="navbar-brand tip" href="<?= Routes::route() ?>" title="home" data-placement="right"><i class="glyphicon glyphicon-home"></i> <?php echo TITLE; ?></a>
 		</div>
 
 		<div class="collapse navbar-collapse" id="navbar-collapse">
 		<ul class="nav navbar-nav navbar-right">
-			<li><a href="./?<?php echo URL_ABOUT; ?>" class="tip" data-placement="left" title="<?php echo I18n::translation('about'); ?>"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
+			<li><a href="<?= Routes::route(URL_ABOUT) ?>" class="tip" data-placement="left" title="<?php echo I18n::translation('about'); ?>"><i class="glyphicon glyphicon-tree-conifer"></i> <?php echo ADVENT_CALENDAR; ?></a></li>
 			<?php
 			// logout
-			if ($authentificated) { echo '<li><a href="./?logout" title="'. I18n::translation('logout') .'" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
+			if ($authentificated) { echo '<li><a href="'. Routes::route(URL_LOGOUT) .'" title="'. I18n::translation('logout') .'" class="tip" data-placement="bottom"><i class="glyphicon glyphicon-user"></i></a></li>'; }
 			// rss
-			if (!defined('PASSKEY')) { echo '<li><a href="', RSS::getLink(), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
+			if (!defined('PASSKEY')) { echo '<li><a href="', Routes::route(URL_RSS), '" title="RSS" class="tip rss-feed" data-placement="bottom"><i class="glyphicon glyphicon-bell"></i></a></li>'; }
 			?>
 		</ul>
 		</div>
@@ -595,21 +623,20 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 		<footer>
 		<hr />
-		<?php if(!empty(DISCLAIMER)): ?>
-			<div class="disclaimer text-center"><?php echo DISCLAIMER; ?></div>
+		<?php if(!empty(COPYRIGHT)): ?>
+			<div class="copyright text-center"><?php echo COPYRIGHT; ?></div>
 		<?php endif; ?>
 		<div class="container">
 			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="<?php echo I18n::translation('upstairs'); ?>"><i class="glyphicon glyphicon-menu-up"></i></a></p>
 			<div class="notice">
-				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo implode('.', array_slice(explode('.', VERSION), 0, 2)); ?>
-				<br /><?php echo I18n::translation('developed-by', '<a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>'); ?>
+				<a href="https://github.com/Devenet/AdventCalendar" class="tip" title="Advent Calendar is a light web application to show a picture per day before an event." rel="external" ?><?php echo ADVENT_CALENDAR; ?></a> <?php echo I18n::translation('developed-by', '<a href="https://nicolas.devenet.info" rel="external">Nicolas Devenet</a>'); ?>
 			</div>
 		</div>
 		</footer>
 
-		<script src="assets/js/jquery.min.js"></script>
-		<script src="assets/js/bootstrap.min.js"></script>
-		<script src="assets/js/adventcalendar.js"></script>
+		<script src="<?= Routes::route() ?>assets/js/jquery.min.js"></script>
+		<script src="<?= Routes::route() ?>assets/js/bootstrap.min.js"></script>
+		<script src="<?= Routes::route() ?>assets/js/adventcalendar.js"></script>
 		<?php if (AddOns::Found('js')): ?>
 		<script>
 			<?php if (AddOns::Found('disqus')): ?>
@@ -630,6 +657,9 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 			(function(){ var u='//<?php echo $piwik["piwik_url"]; ?>/'; _paq.push(['setSiteId', '<?php echo $piwik["site_id"]; ?>']); _paq.push(['setTrackerUrl', u+'piwik.php']); _paq.push(['trackPageView']); _paq.push(['enableLinkTracking']); var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript'; g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s); })();
 			<?php endif; ?>
 		</script>
+		<?php endif; ?>
+		<?php if (AddOns::Found('plausible')): $plausible = AddOns::Get('plausible'); ?>
+		<script async defer data-domain="<?= $plausible['domain'] ?>" src="<?php echo isset($plausible['custom_src']) && !empty($plausible['custom_src']) ? $plausible['custom_src']: 'https://plausible.io/js/plausible.js'; ?>"></script>
 		<?php endif; ?>
 	</body>
 </html>
