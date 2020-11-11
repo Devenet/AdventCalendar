@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.5.0');
+define('VERSION', '1.6.0');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -43,17 +43,13 @@ if (file_exists(SETTINGS_FILE)) {
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
 
 	// what language?
-	if (isset($settings->lang) && !empty($settings->lang) && in_array(mb_strtolower($settings->lang), ['en', 'fr', 'de'])) {
+	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de'])) {
 		define('LANGUAGE', $settings->lang);
 	} else { define('LANGUAGE', 'en'); }
 
-	// do the user want a custom disclaimer?
-	if (isset($settings->disclaimer) && !empty($settings->disclaimer)) {
-		define('DISCLAIMER', $settings->disclaimer == 'none' ? NULL : $settings->disclaimer);
-	} else {
-		$disclaimer = 'Content has been added by the site owner.';
-		if (LANGUAGE == 'fr') { $disclaimer = 'Contenu ajouté par le propriétaire du site.'; }
-		define('DISCLAIMER', $disclaimer);
+	// do the user want a copyright?
+	if (isset($settings->copyright) && !empty($settings->copyright)) {
+		define('COPYRIGHT', $settings->copyright);
 	}
 
 	// want to add disqus thread?
@@ -70,6 +66,11 @@ if (file_exists(SETTINGS_FILE)) {
 	if (isset($settings->piwik) && !empty($settings->piwik) && isset($settings->piwik->piwik_url) && isset($settings->piwik->site_id) ) {
 		AddOns::Register(AddOns::AddOn('piwik', AddOns::JsonToArray($settings->piwik)));
 		AddOns::JavaScriptRegistred();
+	}
+
+	// want to add plausible?
+	if (isset($settings->plausible) && !empty($settings->plausible) && isset($settings->plausible->domain)) {
+		AddOns::Register(AddOns::AddOn('plausible', AddOns::JsonToArray($settings->plausible)));
 	}
 }
 else { die('<!doctype html><html><head><title>'.ADVENT_CALENDAR.'</title><style>body{width:600px;margin:50px auto 20px;}</style></head><body><div style="font-size:30px;"><strong>Oups!</strong> Settings file not found.</div><div><p>Edit <code>private/settings.example.json</code> to personnalize title and year and rename it <code>settings.json</code>.</p><p>If it is not already done, put your photos in the <code>private/</code> folder, and name them with the number of the day you want to illustrate.</p></div></body></html>'); }
@@ -132,7 +133,7 @@ abstract class I18n {
 			'fr' => 'Vous semblez pressé·e, <strong>patience</strong>, c’est seulement dans quelques jours.',
 			'de' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.'
 		],
-		'developed-by' => [ 'en' => 'Developed by {arg}', 'fr' => 'Développé par {arg}', 'de' => 'Developed by {arg}' ],
+		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'developed by {arg}' ],
 		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'Treppe' ],
 		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'about' ],
 		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'About' ],
@@ -285,7 +286,7 @@ abstract class Advent {
 		foreach (self::getDays() as $d) {
 			if ($d->active) { $result .= '<a href="'. $d->url .'" title="'. I18n::translation('day', $d->day) .'"'; }
 			else { $result .= '<div'; }
-			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .'"><span>'. ($d->day) .'</span>';
+			$result .= ' class="day-row '. self::getDayColorClass($d->day, $d->active) .' tip" data-placement="bottom"><span>'. ($d->day) .'</span>';
 			if ($d->active) { $result .= '</a>'; }
 			else { $result .= '</div>'; }
 		}
@@ -595,14 +596,13 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 
 		<footer>
 		<hr />
-		<?php if(!empty(DISCLAIMER)): ?>
-			<div class="disclaimer text-center"><?php echo DISCLAIMER; ?></div>
+		<?php if(!empty(COPYRIGHT)): ?>
+			<div class="copyright text-center"><?php echo COPYRIGHT; ?></div>
 		<?php endif; ?>
 		<div class="container">
 			<p class="pull-right"><a href="#" id="goHomeYouAreDrunk" class="tip" data-placement="left" title="<?php echo I18n::translation('upstairs'); ?>"><i class="glyphicon glyphicon-menu-up"></i></a></p>
 			<div class="notice">
-				<a href="https://github.com/Devenet/AdventCalendar" rel="external"><?php echo ADVENT_CALENDAR; ?></a> &middot; Version <?php echo implode('.', array_slice(explode('.', VERSION), 0, 2)); ?>
-				<br /><?php echo I18n::translation('developed-by', '<a href="http://nicolas.devenet.info" rel="external">Nicolas Devenet</a>'); ?>
+				<a href="https://github.com/Devenet/AdventCalendar" class="tip" title="Advent Calendar is a light web application to show a picture per day before an event." rel="external" ?><?php echo ADVENT_CALENDAR; ?></a> <?php echo I18n::translation('developed-by', '<a href="https://nicolas.devenet.info" rel="external">Nicolas Devenet</a>'); ?>
 			</div>
 		</div>
 		</footer>
@@ -630,6 +630,9 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 			(function(){ var u='//<?php echo $piwik["piwik_url"]; ?>/'; _paq.push(['setSiteId', '<?php echo $piwik["site_id"]; ?>']); _paq.push(['setTrackerUrl', u+'piwik.php']); _paq.push(['trackPageView']); _paq.push(['enableLinkTracking']); var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; g.type='text/javascript'; g.defer=true; g.async=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s); })();
 			<?php endif; ?>
 		</script>
+		<?php endif; ?>
+		<?php if (AddOns::Found('plausible')): $plausible = AddOns::Get('plausible'); ?>
+		<script async defer data-domain="<?= $plausible['domain'] ?>" src="<?php echo isset($plausible['custom_src']) && !empty($plausible['custom_src']) ? $plausible['custom_src']: 'https://plausible.io/js/plausible.js'; ?>"></script>
 		<?php endif; ?>
 	</body>
 </html>
