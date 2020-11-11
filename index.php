@@ -122,29 +122,29 @@ abstract class I18n {
 		'day' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
 		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern' ],
 		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' ],
-		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Geduld!' ],
+		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!' ],
 		'be-patient-panel-title' => [
 			'en' => 'Day {arg} is coming soon!',
 			'fr' => 'Le jour {arg} arrive bientôt !',
-			'de' => 'Der Tag {arg} kommt gleich!'
+			'de' => 'Der Tag {arg} kommt bald!'
 		],
 		'be-patient-text' => [
 			'en' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.',
 			'fr' => 'Vous semblez pressé·e, <strong>patience</strong>, c’est seulement dans quelques jours.',
-			'de' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.'
+			'de' => 'Du scheinst es kaum erwarten zu können. Aber <strong>sei geduldig</strong>, es sind nur noch wenige Tage.'
 		],
-		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'developed by {arg}' ],
-		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'Treppe' ],
-		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'about' ],
-		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'About' ],
-		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'This is a private area!' ],
+		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'entwickelt von {arg}' ],
+		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'nach oben' ],
+		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'über' ],
+		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'Über' ],
+		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'Dies ist ein privater Bereich!' ],
 		'private-area-signin' => [
 			'en' => 'Please sign in with your <b>passkey</b> to continue.',
 			'fr' => 'Connectez-vous avec votre <b>mot de passe</b> pour continuer.',
-			'de' => 'Please sign in with your <b>passkey</b> to continue.',
+			'de' => 'Bitte melde dich mit deinem <b>Passkey</b> an, um fortzufahren.',
 		],
-		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'sign in' ],
-		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'logout' ],
+		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden' ],
+		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden' ],
 	];
 
 	static function translation($text, $arg = null) {
