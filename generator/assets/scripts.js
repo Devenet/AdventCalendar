@@ -1,6 +1,6 @@
 function download(filename, content) {
-  var blob = new Blob([content], {type: "text/plain;charset=utf-8"});
-  saveAs(blob, filename);
+  var blob = new Blob([content], {type: "application/json;charset=utf-8"});
+  saveAs(blob, filename, true); // no BOM
 }
 
 function Day(day) {
