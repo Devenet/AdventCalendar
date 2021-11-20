@@ -1,0 +1,52 @@
+{
+  "1": {
+    "title": "Welcome! ",
+    "legend": "Advent Calendar",
+    "text": "<p><a href='https://github.com/Devenet/AdventCalendar' rel='external'>AdventCalendar</a> is a light web application to show a picture and its legend per day before Christmas, or another event.</p><p>I can’t wait to have it!</p><ol><li>Dowload the <a href='https://github.com/Devenet/AdventCalendar/releases' rel='external'>last release</a> and unzip it into your web server.</li><li>Rename the <code style='font-size:small'>settings.example.json</code> file into <code style='font-size:small'>settings.json</code> and set the year you want.</li><li>Put your images files in the <code style='font-size:small'>private</code> folder;  JPEG, PNG or GIF are supported.<br>Images must be named with the number of the day, like “1.jpeg” or “2.png”.</li><li>Enjoy!</li></ol><p class='espace-top'>You also can transform it into a <span style='font-weight:500;'>count down calendar</span> simply by changing the settings. Nice, is’nt it?</p>"
+  },
+  "2": {
+    "title": "Day page customization",
+    "text": "<p>For each day, you can customize:</p><ul><li>The title of the day <small>— default is “Day D”</small>.</li><li>The legend of the photo <small>— default is empty</small>.</li><li>The main text <small>— default is empty</small>.</li><li><span class='label label-primary'>new</span> You can now set up a link for the image and its legend <small>— default is empty</small>.</li></ul><p>You can format the text field as you want with HTML.</p><p class='espace-top'>Use the <a href='https://web.devenet.eu/advent/generator/#calendar' rel='external'>online generator</a> to easily build your <code style='font-size:small'>calendar.json</code> file before saving it into the <code style='font-size:small'>private</code> folder.</p>"
+  },
+  "3": {
+    "title": "General settings",
+    "legend": "Settings generator",
+    "text": "<p>You can cutomize a lot of your AdventCalendar.</p><ul><li>Title of your AdventCalendar.</li><li>The period of your count down (year, month and even start and end dates).</li><li>Make your AdventCalendar private with a passkey.</li><li>Use an alternate background. (What! You do no like trees?)</li><li>You can change the main language.<br>« Bonjour ! » 👋 „Hallo!“</li><li>Enable Disqus comments.</li><li>Enable tracking (Google Analytics, Piwik and Plausible).</li></ul><p class='espace-top'>Use the <a href='https://web.devenet.eu/advent/generator/#settings' rel='external'>online generator</a> to easily build your <code style='font-size:small'>settings.json</code> file before saving it into the <code style='font-size:small'>private</code> folder."
+  },
+  "4": {
+    "title": "Handle errors",
+    "text": "<p>If the application can not found a picture for a specific day, this image will be shown.</p><div class='espace-top' style='font-size:80%'>Other troubles?<ul><li>All days are shown? ≫ Check the syntax in your <code style='font-size:small'>settings.json</code> and be sure that the file is encoded in UTF-8 whithout BOM.</li><li>A photo is not displayed? ≫ Be sure your photo is correctly named, like “3.jpg”, 6.jpeg”, ”8.png” or ”12.gif”.</li><li>Title, legend or text are not displayed? ≫ Check the syntax of your <code style='font-size:small'>calendar.json</code> file.</li>\n<li>Days are shown in late or advance? ≫ Configure the timezone of your server.</li></ul></div>"
+  },
+  "5": {
+    "title": "Blooming cherry tree",
+    "legend": "Apr. 2011 @ Champagne-Ardenne, France",
+    "link": "https://www.flickr.com/photos/nicolabricot/5605369277",
+    "text": "<p>Did you try to navigate with the <kbd>←</kbd> and <kbd>→</kbd> keys of your keyboard?</p>"
+  },
+  "6": {
+    "title": "Louvre Pyramid",
+    "legend": "Oct. 2013 @ Paris, France",
+    "link": "https://www.flickr.com/photos/nicolabricot/10590201274",
+    "text": "<p><q>The Louvre Pyramid (Pyramide du Louvre) is a large glass and metal pyramid designed by Chinese-American architect I. M. Pei, surrounded by three smaller pyramids, in the main courtyard (Cour Napoléon) of the Louvre Palace (Palais du Louvre) in Paris. The large pyramid serves as the main entrance to the Louvre Museum. Completed in 1989, it has become a landmark of the city of Paris.</q><br>—<cite><a href='https://en.wikipedia.org/wiki/Louvre_Pyramid' rel='external'>Wikipedia</a></cite>.</p>"
+  },
+  "7": {
+    "title": "Break",
+    "legend": "Aug. 2014 @ Strasbourg, France",
+    "link": "https://www.flickr.com/photos/nicolabricot/5999785134"
+  },
+  "8": {
+    "title": "Pebble beach",
+    "legend": "June 2011 @ Normandie, France",
+    "link": "https://www.flickr.com/photos/nicolabricot/5836726831"
+  },
+  "9": {
+    "title": "Padlocks",
+    "legend": "Oct. 2013 @ Paris, France",
+    "link": "https://www.flickr.com/photos/nicolabricot/10590197444"
+  },
+  "10": {
+    "title": "Chair lift",
+    "legend": "Dec. 2012 @ Alpes, France",
+    "link": "https://www.flickr.com/photos/nicolabricot/8336937741"
+  }
+}
