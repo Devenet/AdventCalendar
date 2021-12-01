@@ -183,7 +183,7 @@ abstract class I18n {
 			'en' => 'Please sign in with your <b>passkey</b> to continue.',
 			'fr' => 'Connectez-vous avec votre <b>mot de passe</b> pour continuer.',
 			'de' => 'Bitte melde dich mit deinem <b>Passkey</b> an, um fortzufahren.',
-			'de' => 'Vennligst logg inn med <b>passord</b> for å fortsette.',
+			'no' => 'Vennligst logg inn med <b>passord</b> for å fortsette.',
 		],
 		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden', 'no' => 'logg inn' ],
 		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden', 'no' => 'logg ut' ],
