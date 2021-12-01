@@ -42,7 +42,7 @@ if (file_exists(SETTINGS_FILE)) {
 
 	// Does the user want another background?
 	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
-	
+
 	// Does the user want a different background?
 	if (isset($settings->background_url) && $settings->background_url != '') { define('BACKGROUND_URL', $settings->background_url); }
 
@@ -157,33 +157,36 @@ Routes::initialize();
 
 abstract class I18n {
 	static $translations = [
-		'day-d' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
-		'day' => [ 'en' => 'day', 'fr' => 'jour', 'de' => 'Tag' ],
-		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern' ],
-		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' ],
-		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!' ],
+		'day-d' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}', 'no' => 'Dag {arg}' ],
+		'day' => [ 'en' => 'day', 'fr' => 'jour', 'de' => 'Tag' , 'no' => 'dag'],
+		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern', 'no' => 'i går' ],
+		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' , 'no' => 'i morgen' ],
+		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!', 'no' => 'Vær Tålmodig!' ],
 		'be-patient-panel-title' => [
 			'en' => 'Day {arg} is coming soon!',
 			'fr' => 'Le jour {arg} arrive bientôt !',
-			'de' => 'Der Tag {arg} kommt bald!'
+			'de' => 'Der Tag {arg} kommt bald!',
+			'no' => 'Dag {arg} kommer snart!'
 		],
 		'be-patient-text' => [
 			'en' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.',
 			'fr' => 'Vous semblez pressé·e, <strong>patience</strong>, c’est seulement dans quelques jours.',
-			'de' => 'Du scheinst es kaum erwarten zu können. Aber <strong>sei geduldig</strong>, es sind nur noch wenige Tage.'
+			'de' => 'Du scheinst es kaum erwarten zu können. Aber <strong>sei geduldig</strong>, es sind nur noch wenige Tage.',
+			'no' => 'Du ser ut til å ha det travelt, men <strong>vær tålmodig</strong>, det er bare noen få dager til.'
 		],
-		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'entwickelt von {arg}' ],
-		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'nach oben' ],
-		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'über' ],
-		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'Über' ],
-		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'Dies ist ein privater Bereich!' ],
+		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'entwickelt von {arg}' , 'no' => 'utviklet av {arg}' ],
+		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'nach oben', 'no' => 'ovenpå' ],
+		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'über', 'no' => 'om' ],
+		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'Über' , 'no' => 'Om' ],
+		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'Dies ist ein privater Bereich!', 'no' => 'Dette er privat område!' ],
 		'private-area-signin' => [
 			'en' => 'Please sign in with your <b>passkey</b> to continue.',
 			'fr' => 'Connectez-vous avec votre <b>mot de passe</b> pour continuer.',
 			'de' => 'Bitte melde dich mit deinem <b>Passkey</b> an, um fortzufahren.',
+			'de' => 'Vennligst logg inn med <b>passord</b> for å fortsette.',
 		],
-		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden' ],
-		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden' ],
+		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden', 'no' => 'logg inn' ],
+		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden', 'no' => 'logg ut' ],
 	];
 
 	static function translation($text, $arg = null) {
@@ -425,7 +428,7 @@ abstract class RSS {
 			$cache_date = filemtime(RSS_CACHE_FILE);
 			$max_cache_date = $cache_date + 3600*24;
 			$cache_day = date('j', $cache_date);
-			
+
 			if ($cache_date <= $max_cache_date && $cache_day <= date("j")) {
 				exit(file_get_contents(RSS_CACHE_FILE));
 			}
@@ -569,7 +572,7 @@ if (isset($_GET[URL_ABOUT])) {
 // default template is 404
 if (empty($template)) {
 	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="'. Routes::route() .'" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
-	$template_title = 'Not found';	
+	$template_title = 'Not found';
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
 
