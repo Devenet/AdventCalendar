@@ -50,8 +50,8 @@ Copy the `settings.example.json` file on folder `private` to `settings.json` and
 The minimum required configuration file must contains:
 ```json
 {
-  "title": "Advent Calendar · 2020",
-  "year": 2020
+  "title": "Advent Calendar · 2021",
+  "year": 2021
 }
 ```
 
