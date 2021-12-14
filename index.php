@@ -132,7 +132,8 @@ abstract class Routes {
 
 	static function initialize() {
 		if (empty(self::$base)) {
-			self::$base = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+			self::$base = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+			if (strcasecmp(substr(self::$base, strlen(self::$base) - 1), '/') !== 0) { self::$base .= '/'; }
 			self::$query_string = !defined('URL_REWRITING');
 		}
 	}
