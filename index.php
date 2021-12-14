@@ -40,11 +40,13 @@ if (file_exists(SETTINGS_FILE)) {
 	// is it a private calendar?
 	if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
 
-	// Does the user want another background?
-	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
-
-	// Does the user want a different background?
-	if (isset($settings->background_url) && $settings->background_url != '') { define('BACKGROUND_URL', $settings->background_url); }
+	// does the user want another background?
+	if (isset($settings->background)) {
+		// the alternate?
+		if ($settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
+		// or from a custom URL?
+		else if (!empty($settings->background)) { define('BACKGROUND_URL', $settings->background); }
+	}
 
 	// what language?
 	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de'])) {
@@ -597,6 +599,8 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		<link href="<?= Routes::route() ?>assets/css/adventcalendar.css" rel="stylesheet">
 
 		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo Routes::route(URL_RSS); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
+
+		<?php if (defined('BACKGROUND_URL')) echo '<style>.background { background: url('. BACKGROUND_URL .') left top repeat fixed; }</style>'; ?>
 	</head>
 
 	<body>
@@ -620,9 +624,6 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		</div>
 		</div>
 		</nav>
-		<?php  if (defined('BACKGROUND_URL')) {
-			echo '<style type="text/css">.background {background: url(' . BACKGROUND_URL . ') left top repeat fixed !important;}</style>';
-		} ?>
 		<div class="background<?php if(defined('ALTERNATE_BACKGROUND')) { echo ' alternate-background'; } ?>">
 		<?php
 			echo $template;

@@ -81,7 +81,7 @@ _Feel free to use the online [settings file generator](https://www.devenet.eu/ad
 | __`first_day`__ | integer | Specific first day to turn on a countdown calendar. Default is 1. |
 | __`last_day`__ | integer | Specific last day to turn on a countdown calendar. Default is 24. |
 | __`lang`__ | string | Supported languages are `en` (default), `fr`, `de`. |
-| __`background`__ | string | Set to `alternate` to use an alternative background image. |
+| __`background`__ | string | Set to `alternate` to use the alternative background, otherwise set the URL of your custom background image. |
 | __`passkey`__ | string | If filled out, visitors need to enter a password to access the private AdventCalendar. |
 | __`disqus_shortname`__ | string | Set a Disqus account to enable comments for day pages. |
 | __`google_analytics`__ | object | Set a Google Analytics account with a child object containing the two properties `tracking_id` and `domain`. |
@@ -183,4 +183,6 @@ Let me know if you use Advent Calendar by sending me an e-mail, I will be happy 
 
 —
 
-Special thanks to [@fscholdei](https://github.com/fscholdei) for the German translation.
+Special thanks to
+- [@fscholdei](https://github.com/fscholdei) for the German translation
+- [@Thaoh](https://github.com/Thaoh) for the Norwegian translation and the URL custom background feature
