@@ -49,7 +49,7 @@ if (file_exists(SETTINGS_FILE)) {
 	}
 
 	// what language?
-	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de'])) {
+	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de', 'no'])) {
 		define('LANGUAGE', $settings->lang);
 	} else { define('LANGUAGE', 'en'); }
 
