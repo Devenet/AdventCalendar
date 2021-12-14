@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.6.0');
+define('VERSION', '1.7.0');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
