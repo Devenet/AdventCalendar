@@ -86,7 +86,7 @@ _Feel free to use the online [settings file generator](https://www.devenet.eu/ad
 | __`disqus_shortname`__ | string | Set a Disqus account to enable comments for day pages. |
 | __`google_analytics`__ | object | Set a Google Analytics account with a child object containing the two properties `tracking_id` and `domain`. |
 | __`piwik`__ | object | Set a Piwik account with a child object containing the two properties `piwik_url` and `site_id`. |
-| __`plausible`__ | object | Set a Plausible account with a child object containing the property `domain` for _data-domain_, and if you use a CNAME custom domain the property `custom_src` with the full URL in the Plausible _src_ configuration. |
+| __`plausible`__ | object | Set a Plausible account with a child object containing the property `domain` for _data-domain_. |
 | __`copyright`__ | string | Set a copyright notice; not displayed if empty (default). |
 | __`url_rewriting`__ | boolean | Set to `true` to enable rewriting URL and uncomment lines in the root `.htaccess` file. Default is `false`. |
 
@@ -112,8 +112,7 @@ This is an example with all options:
     "site_id": "12345"
   },
   "plausible": {
-    "domain": "domain.tld",
-    "custom_src": "https://cname.domain.tld/js/index.js"
+    "domain": "domain.tld"
   },
   "copyright": "All content is under Creative Commons BY-NC 3.0 licence.",
   "url_rewriting": false

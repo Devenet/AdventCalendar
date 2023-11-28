@@ -669,7 +669,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		</script>
 		<?php endif; ?>
 		<?php if (AddOns::Found('plausible')): $plausible = AddOns::Get('plausible'); ?>
-		<script async defer data-domain="<?= $plausible['domain'] ?>" src="<?php echo isset($plausible['custom_src']) && !empty($plausible['custom_src']) ? $plausible['custom_src']: 'https://plausible.io/js/plausible.js'; ?>"></script>
+		<script async defer data-domain="<?= $plausible['domain'] ?>" src="https://plausible.io/js/plausible.js"></script>
 		<?php endif; ?>
 	</body>
 </html>
