@@ -216,7 +216,7 @@ abstract class Image {
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
 			$result['url'] = Routes::route(URL_PHOTO, $day);
 
-			$extensions = ['jpg', 'jpeg', 'png', 'gif'];
+			$extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4'];
 			foreach ($extensions as $extension) {
 				$file = PRIVATE_FOLDER.'/'.$day.'.'.$extension;
 				if (file_exists($file)) {
@@ -246,6 +246,8 @@ abstract class Image {
 				return 'image/png';
 			case 'gif':
 				return 'image/gif';
+			case 'mp4':
+				return 'video/mp4';
 			default:
 				return NULL;
 		}
@@ -376,10 +378,14 @@ abstract class Advent {
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 
-		// display image
+		// display image or video
 		$result .= '<div class="text-center">';
 		if (!empty($link)) { $result .= '<a href="'. $link .'" rel="external">'; }
-		$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'" />';
+		if (Image::getInfo($day)['type'] == 'video/mp4') {
+			$result .= '<video controls preload="none" width="100%" class="img-responsive img-thumbnail"><source src="'. Routes::route(URL_PHOTO, $day) .'" type="video/mp4"></video>';
+		} else {
+			$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'">';
+		}
 		if (!empty($link)) { $result .= '</a>'; }
 
 		// do we have a legend?
