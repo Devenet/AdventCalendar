@@ -1,8 +1,7 @@
 {
-    "title": "Advent Calendar · Demo",
+    "title": "Demo of Advent Calendar",
     "plausible": {
-        "domain": "devenet.eu",
-        "custom_src": "https://stats.devenet.eu/js/index.js"
+        "domain": "devenet.eu"
     },
     "url_rewriting": false
 }
