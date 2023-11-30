@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.7.0');
+define('VERSION', '1.8.0');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -216,7 +216,7 @@ abstract class Image {
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
 			$result['url'] = Routes::route(URL_PHOTO, $day);
 
-			$extensions = ['jpg', 'jpeg', 'png', 'gif'];
+			$extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4'];
 			foreach ($extensions as $extension) {
 				$file = PRIVATE_FOLDER.'/'.$day.'.'.$extension;
 				if (file_exists($file)) {
@@ -246,6 +246,8 @@ abstract class Image {
 				return 'image/png';
 			case 'gif':
 				return 'image/gif';
+			case 'mp4':
+				return 'video/mp4';
 			default:
 				return NULL;
 		}
@@ -376,10 +378,14 @@ abstract class Advent {
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 
-		// display image
+		// display image or video
 		$result .= '<div class="text-center">';
 		if (!empty($link)) { $result .= '<a href="'. $link .'" rel="external">'; }
-		$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'" />';
+		if (Image::getInfo($day)['type'] == 'video/mp4') {
+			$result .= '<video controls preload="none" width="100%" class="img-responsive img-thumbnail"><source src="'. Routes::route(URL_PHOTO, $day) .'" type="video/mp4"></video>';
+		} else {
+			$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'">';
+		}
 		if (!empty($link)) { $result .= '</a>'; }
 
 		// do we have a legend?
@@ -483,9 +489,14 @@ abstract class RSS {
  */
 if (defined('PASSKEY')) {
 	// for calendars on same server, set a different cookie name based on the script path
-	session_name(md5($_SERVER['SCRIPT_NAME']));
+	session_name('advent_'.md5($_SERVER['SCRIPT_NAME']));
 
-	session_start();
+	session_start([
+		'cookie_httponly' => true,
+		'cookie_samesite' => 'Lax',
+		'cookie_lifetime' => 24*3600, // 24 hours
+		'cookie_path' => dirname($_SERVER['SCRIPT_NAME']),
+	]);
 
 	// want to log out
 	if (isset($_GET[URL_LOGOUT])) {
@@ -669,7 +680,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		</script>
 		<?php endif; ?>
 		<?php if (AddOns::Found('plausible')): $plausible = AddOns::Get('plausible'); ?>
-		<script async defer data-domain="<?= $plausible['domain'] ?>" src="<?php echo isset($plausible['custom_src']) && !empty($plausible['custom_src']) ? $plausible['custom_src']: 'https://plausible.io/js/plausible.js'; ?>"></script>
+		<script async defer data-domain="<?= $plausible['domain'] ?>" src="https://plausible.io/js/plausible.js"></script>
 		<?php endif; ?>
 	</body>
 </html>
