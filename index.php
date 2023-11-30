@@ -483,9 +483,14 @@ abstract class RSS {
  */
 if (defined('PASSKEY')) {
 	// for calendars on same server, set a different cookie name based on the script path
-	session_name(md5($_SERVER['SCRIPT_NAME']));
+	session_name('advent_'.md5($_SERVER['SCRIPT_NAME']));
 
-	session_start();
+	session_start([
+		'cookie_httponly' => true,
+		'cookie_samesite' => 'Lax',
+		'cookie_lifetime' => 24*3600, // 24 hours
+		'cookie_path' => dirname($_SERVER['SCRIPT_NAME']),
+	]);
 
 	// want to log out
 	if (isset($_GET[URL_LOGOUT])) {
