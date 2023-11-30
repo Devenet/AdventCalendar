@@ -1,0 +1,9 @@
+location ~ ^/advent\/(day|jour|tag|dag)/ {
+	autoindex off;
+	rewrite ^/advent/(day|jour|tag|dag)(\/([0-9]*))?$ /advent/index.php?day=$3 last;
+}
+
+location /advent/ {
+	autoindex off;
+	rewrite ^/advent/([a-z]+)(\/([0-9]*))?$ /advent/index.php?$1=$3;
+}

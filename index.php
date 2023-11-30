@@ -8,7 +8,7 @@
 error_reporting(0);
 
 // constants to be used
-define('VERSION', '1.6.0');
+define('VERSION', '1.8.0');
 define('ADVENT_CALENDAR', 'Advent Calendar');
 define('URL_DAY', 'day');
 define('URL_PHOTO', 'photo');
@@ -40,11 +40,16 @@ if (file_exists(SETTINGS_FILE)) {
 	// is it a private calendar?
 	if (isset($settings->passkey) && !empty($settings->passkey)) { define('PASSKEY', $settings->passkey); }
 
-	// do the user want an other background?
-	if (isset($settings->background) && $settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
+	// does the user want another background?
+	if (isset($settings->background)) {
+		// the alternate?
+		if ($settings->background == 'alternate') { define('ALTERNATE_BACKGROUND', TRUE); }
+		// or from a custom URL?
+		else if (!empty($settings->background)) { define('BACKGROUND_URL', $settings->background); }
+	}
 
 	// what language?
-	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de'])) {
+	if (isset($settings->lang) && !empty($settings->lang) && in_array(strtolower($settings->lang), ['en', 'fr', 'de', 'no'])) {
 		define('LANGUAGE', $settings->lang);
 	} else { define('LANGUAGE', 'en'); }
 
@@ -127,7 +132,8 @@ abstract class Routes {
 
 	static function initialize() {
 		if (empty(self::$base)) {
-			self::$base = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']).'/';
+			self::$base = (empty($_SERVER['REQUEST_SCHEME']) ? 'http' : $_SERVER['REQUEST_SCHEME']).'://'.$_SERVER['HTTP_HOST'].dirname($_SERVER['SCRIPT_NAME']);
+			if (strcasecmp(substr(self::$base, strlen(self::$base) - 1), '/') !== 0) { self::$base .= '/'; }
 			self::$query_string = !defined('URL_REWRITING');
 		}
 	}
@@ -154,33 +160,36 @@ Routes::initialize();
 
 abstract class I18n {
 	static $translations = [
-		'day-d' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}' ],
-		'day' => [ 'en' => 'day', 'fr' => 'jour', 'de' => 'Tag' ],
-		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern' ],
-		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' ],
-		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!' ],
+		'day-d' => [ 'en' => 'Day {arg}', 'fr' => 'Jour {arg}', 'de' => 'Tag {arg}', 'no' => 'Dag {arg}' ],
+		'day' => [ 'en' => 'day', 'fr' => 'jour', 'de' => 'Tag' , 'no' => 'dag'],
+		'previous-link-title' => [ 'en' => 'yesterday', 'fr' => 'hier', 'de' => 'gestern', 'no' => 'i går' ],
+		'next-link-title' => [ 'en' => 'tomorrow', 'fr' => 'demain', 'de' => 'morgen' , 'no' => 'i morgen' ],
+		'be-patient-title' => [ 'en' => 'Be patient!', 'fr' => 'Patience !', 'de' => 'Hab Geduld!', 'no' => 'Vær Tålmodig!' ],
 		'be-patient-panel-title' => [
 			'en' => 'Day {arg} is coming soon!',
 			'fr' => 'Le jour {arg} arrive bientôt !',
-			'de' => 'Der Tag {arg} kommt bald!'
+			'de' => 'Der Tag {arg} kommt bald!',
+			'no' => 'Dag {arg} kommer snart!'
 		],
 		'be-patient-text' => [
 			'en' => 'You seems to be in hurry, but <strong>be patient</strong>, it is only in few days.',
 			'fr' => 'Vous semblez pressé·e, <strong>patience</strong>, c’est seulement dans quelques jours.',
-			'de' => 'Du scheinst es kaum erwarten zu können. Aber <strong>sei geduldig</strong>, es sind nur noch wenige Tage.'
+			'de' => 'Du scheinst es kaum erwarten zu können. Aber <strong>sei geduldig</strong>, es sind nur noch wenige Tage.',
+			'no' => 'Du ser ut til å ha det travelt, men <strong>vær tålmodig</strong>, det er bare noen få dager til.'
 		],
-		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'entwickelt von {arg}' ],
-		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'nach oben' ],
-		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'über' ],
-		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'Über' ],
-		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'Dies ist ein privater Bereich!' ],
+		'developed-by' => [ 'en' => 'developed by {arg}', 'fr' => 'développé par {arg}', 'de' => 'entwickelt von {arg}' , 'no' => 'utviklet av {arg}' ],
+		'upstairs' => [ 'en' => 'upstairs', 'fr' => 'escaliers', 'de' => 'nach oben', 'no' => 'ovenpå' ],
+		'about' => [ 'en' => 'about', 'fr' => 'à propos', 'de' => 'über', 'no' => 'om' ],
+		'about-title' => [ 'en' => 'About', 'fr' => 'À propos', 'de' => 'Über' , 'no' => 'Om' ],
+		'private-area-title' => [ 'en' => 'This is a private area!', 'fr' => 'C’est une zone privée !', 'de' => 'Dies ist ein privater Bereich!', 'no' => 'Dette er privat område!' ],
 		'private-area-signin' => [
 			'en' => 'Please sign in with your <b>passkey</b> to continue.',
 			'fr' => 'Connectez-vous avec votre <b>mot de passe</b> pour continuer.',
 			'de' => 'Bitte melde dich mit deinem <b>Passkey</b> an, um fortzufahren.',
+			'no' => 'Vennligst logg inn med <b>passord</b> for å fortsette.',
 		],
-		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden' ],
-		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden' ],
+		'signin' => [ 'en' => 'sign in', 'fr' => 'connexion', 'de' => 'anmelden', 'no' => 'logg inn' ],
+		'logout' => [ 'en' => 'logout', 'fr' => 'déconnexion', 'de' => 'abmelden', 'no' => 'logg ut' ],
 	];
 
 	static function translation($text, $arg = null) {
@@ -207,7 +216,7 @@ abstract class Image {
 		if (Advent::acceptDay($day) && Advent::isActiveDay($day)) {
 			$result['url'] = Routes::route(URL_PHOTO, $day);
 
-			$extensions = ['jpg', 'jpeg', 'png', 'gif'];
+			$extensions = ['jpg', 'jpeg', 'png', 'gif', 'mp4'];
 			foreach ($extensions as $extension) {
 				$file = PRIVATE_FOLDER.'/'.$day.'.'.$extension;
 				if (file_exists($file)) {
@@ -237,6 +246,8 @@ abstract class Image {
 				return 'image/png';
 			case 'gif':
 				return 'image/gif';
+			case 'mp4':
+				return 'video/mp4';
 			default:
 				return NULL;
 		}
@@ -367,10 +378,14 @@ abstract class Advent {
 		// clearfix
 		$result .= '<div class="clearfix"></div>';
 
-		// display image
+		// display image or video
 		$result .= '<div class="text-center">';
 		if (!empty($link)) { $result .= '<a href="'. $link .'" rel="external">'; }
-		$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'" />';
+		if (Image::getInfo($day)['type'] == 'video/mp4') {
+			$result .= '<video controls preload="none" width="100%" class="img-responsive img-thumbnail"><source src="'. Routes::route(URL_PHOTO, $day) .'" type="video/mp4"></video>';
+		} else {
+			$result .= '<img src="'. Routes::route(URL_PHOTO, $day) .'" class="img-responsive img-thumbnail" alt="'. htmlspecialchars($title) .'">';
+		}
 		if (!empty($link)) { $result .= '</a>'; }
 
 		// do we have a legend?
@@ -422,7 +437,7 @@ abstract class RSS {
 			$cache_date = filemtime(RSS_CACHE_FILE);
 			$max_cache_date = $cache_date + 3600*24;
 			$cache_day = date('j', $cache_date);
-			
+
 			if ($cache_date <= $max_cache_date && $cache_day <= date("j")) {
 				exit(file_get_contents(RSS_CACHE_FILE));
 			}
@@ -474,9 +489,14 @@ abstract class RSS {
  */
 if (defined('PASSKEY')) {
 	// for calendars on same server, set a different cookie name based on the script path
-	session_name(md5($_SERVER['SCRIPT_NAME']));
+	session_name('advent_'.md5($_SERVER['SCRIPT_NAME']));
 
-	session_start();
+	session_start([
+		'cookie_httponly' => true,
+		'cookie_samesite' => 'Lax',
+		'cookie_lifetime' => 24*3600, // 24 hours
+		'cookie_path' => dirname($_SERVER['SCRIPT_NAME']),
+	]);
 
 	// want to log out
 	if (isset($_GET[URL_LOGOUT])) {
@@ -566,7 +586,7 @@ if (isset($_GET[URL_ABOUT])) {
 // default template is 404
 if (empty($template)) {
 	$template = '<div class="container error"><div class="panel panel-danger"><div class="panel-heading"><h3 class="panel-title">404 Not Found</h3></div><div class="panel-body">The requested URL was not found on this server. <a href="'. Routes::route() .'" class="illustration illustration-danger text-center tip" title="home"><i class="glyphicon glyphicon-home"></i></a></div></div></div>';
-	$template_title = 'Not found';	
+	$template_title = 'Not found';
 	header('HTTP/1.1 404 Not Found', true, 404);
 }
 
@@ -591,6 +611,8 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		<link href="<?= Routes::route() ?>assets/css/adventcalendar.css" rel="stylesheet">
 
 		<?php if (!defined('PASSKEY')): ?><link rel="alternate" type="application/rss+xml" href="<?php echo Routes::route(URL_RSS); ?>" title="<?php echo TITLE; ?>" /><?php endif; ?>
+
+		<?php if (defined('BACKGROUND_URL')) echo '<style>.background { background: url('. BACKGROUND_URL .') left top repeat fixed; }</style>'; ?>
 	</head>
 
 	<body>
@@ -614,7 +636,6 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		</div>
 		</div>
 		</nav>
-
 		<div class="background<?php if(defined('ALTERNATE_BACKGROUND')) { echo ' alternate-background'; } ?>">
 		<?php
 			echo $template;
@@ -660,7 +681,7 @@ $authentificated = defined('PASSKEY') && isset($_SESSION['welcome']);
 		</script>
 		<?php endif; ?>
 		<?php if (AddOns::Found('plausible')): $plausible = AddOns::Get('plausible'); ?>
-		<script async defer data-domain="<?= $plausible['domain'] ?>" src="<?php echo isset($plausible['custom_src']) && !empty($plausible['custom_src']) ? $plausible['custom_src']: 'https://plausible.io/js/plausible.js'; ?>"></script>
+		<script async defer data-domain="<?= $plausible['domain'] ?>" src="https://plausible.io/js/plausible.js"></script>
 		<?php endif; ?>
 	</body>
 </html>

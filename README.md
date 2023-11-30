@@ -1,7 +1,7 @@
 # AdventCalendar
 
 Advent Calendar is a light web application to show a picture and its legend per day before Christmas, or any other event.  
-It’s written in PHP, use last web technologies—and proud to not support obsolete versions of IE.
+It’s written in PHP with modern web technologies.
 
 → [See a demo](https://www.devenet.eu/advent/demo).
 
@@ -24,6 +24,9 @@ Then edit the `settings.json` file to configure the application and set the year
 
 To finish, just put your image files in the `private` folder; images named with the number of the day (such as `1.jpeg`, `2.jpg`, `3.png`).  
 Supported formats are: JPG/JPEG, PNG, GIF.
+
+**NEW** You can now use a video file with MP4 format.  
+The video will be served by the PHP app, so I strongly recommand that you only use a lightweight video file.
 
 ***
 
@@ -50,8 +53,8 @@ Copy the `settings.example.json` file on folder `private` to `settings.json` and
 The minimum required configuration file must contains:
 ```json
 {
-  "title": "Advent Calendar · 2020",
-  "year": 2020
+  "title": "Advent Calendar · 2023",
+  "year": 2023
 }
 ```
 
@@ -81,12 +84,12 @@ _Feel free to use the online [settings file generator](https://www.devenet.eu/ad
 | __`first_day`__ | integer | Specific first day to turn on a countdown calendar. Default is 1. |
 | __`last_day`__ | integer | Specific last day to turn on a countdown calendar. Default is 24. |
 | __`lang`__ | string | Supported languages are `en` (default), `fr`, `de`. |
-| __`background`__ | string | Set to `alternate` to use an alternative background image. |
+| __`background`__ | string | Set to `alternate` to use the alternative background, otherwise set the URL of your custom background image. |
 | __`passkey`__ | string | If filled out, visitors need to enter a password to access the private AdventCalendar. |
 | __`disqus_shortname`__ | string | Set a Disqus account to enable comments for day pages. |
 | __`google_analytics`__ | object | Set a Google Analytics account with a child object containing the two properties `tracking_id` and `domain`. |
 | __`piwik`__ | object | Set a Piwik account with a child object containing the two properties `piwik_url` and `site_id`. |
-| __`plausible`__ | object | Set a Plausible account with a child object containing the property `domain` for _data-domain_, and if you use a CNAME custom domain the property `custom_src` with the full URL in the Plausible _src_ configuration. |
+| __`plausible`__ | object | Set a Plausible account with a child object containing the property `domain` for _data-domain_. |
 | __`copyright`__ | string | Set a copyright notice; not displayed if empty (default). |
 | __`url_rewriting`__ | boolean | Set to `true` to enable rewriting URL and uncomment lines in the root `.htaccess` file. Default is `false`. |
 
@@ -94,8 +97,8 @@ _Feel free to use the online [settings file generator](https://www.devenet.eu/ad
 This is an example with all options:
 ```json
 {
-  "title": "Advent Calendar · 2020",
-  "year": 2020,
+  "title": "Advent Calendar · 2023",
+  "year": 2023,
   "month": 12,
   "first_day": 1,
   "last_day": 24,
@@ -112,8 +115,7 @@ This is an example with all options:
     "site_id": "12345"
   },
   "plausible": {
-    "domain": "domain.tld",
-    "custom_src": "https://cname.domain.tld/js/index.js"
+    "domain": "domain.tld"
   },
   "copyright": "All content is under Creative Commons BY-NC 3.0 licence.",
   "url_rewriting": false
@@ -127,10 +129,10 @@ This is an example with all options:
 Put your photos in the `private` folder, and name them with the number of the day you want to illustrate.
 For example, for the 1st December, call your file `1.jpg` or `1.jpeg`.  
 
-Supported formats are: JPG/JPEG, PNG, GIF.
+Supported formats are: JPG/JPEG, PNG, GIF for images, and MP4 for videos.
 
 __Be sure that the access to `private` folder is forbidden when browsing it!__   
-For Apache configuration, be sure that a `.htaccess` file with the directive `Require all denied` is in and read.
+For Apache configuration, be sure that a `.htaccess` file with the directive `Require all denied` is in.
 
 ### Customize legend and title
 
@@ -183,4 +185,6 @@ Let me know if you use Advent Calendar by sending me an e-mail, I will be happy 
 
 —
 
-Special thanks to [@fscholdei](https://github.com/fscholdei) for the German translation.
+❤️ Special thanks to  
+- [@fscholdei](https://github.com/fscholdei) for the German translation
+- [@Thaoh](https://github.com/Thaoh) for the Norwegian translation and the URL custom background feature
