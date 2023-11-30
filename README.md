@@ -1,7 +1,7 @@
 # AdventCalendar
 
 Advent Calendar is a light web application to show a picture and its legend per day before Christmas, or any other event.  
-It’s written in PHP, use last web technologies—and proud to not support obsolete versions of IE.
+It’s written in PHP with modern web technologies.
 
 → [See a demo](https://www.devenet.eu/advent/demo).
 
@@ -24,6 +24,9 @@ Then edit the `settings.json` file to configure the application and set the year
 
 To finish, just put your image files in the `private` folder; images named with the number of the day (such as `1.jpeg`, `2.jpg`, `3.png`).  
 Supported formats are: JPG/JPEG, PNG, GIF.
+
+**NEW** You can now use a video file with MP4 format.  
+The video will be served by the PHP app, so I strongly recommand that you only use a lightweight video file.
 
 ***
 
@@ -50,8 +53,8 @@ Copy the `settings.example.json` file on folder `private` to `settings.json` and
 The minimum required configuration file must contains:
 ```json
 {
-  "title": "Advent Calendar · 2021",
-  "year": 2021
+  "title": "Advent Calendar · 2023",
+  "year": 2023
 }
 ```
 
@@ -94,8 +97,8 @@ _Feel free to use the online [settings file generator](https://www.devenet.eu/ad
 This is an example with all options:
 ```json
 {
-  "title": "Advent Calendar · 2020",
-  "year": 2020,
+  "title": "Advent Calendar · 2023",
+  "year": 2023,
   "month": 12,
   "first_day": 1,
   "last_day": 24,
@@ -126,10 +129,10 @@ This is an example with all options:
 Put your photos in the `private` folder, and name them with the number of the day you want to illustrate.
 For example, for the 1st December, call your file `1.jpg` or `1.jpeg`.  
 
-Supported formats are: JPG/JPEG, PNG, GIF.
+Supported formats are: JPG/JPEG, PNG, GIF for images, and MP4 for videos.
 
 __Be sure that the access to `private` folder is forbidden when browsing it!__   
-For Apache configuration, be sure that a `.htaccess` file with the directive `Require all denied` is in and read.
+For Apache configuration, be sure that a `.htaccess` file with the directive `Require all denied` is in.
 
 ### Customize legend and title
 
@@ -182,6 +185,6 @@ Let me know if you use Advent Calendar by sending me an e-mail, I will be happy 
 
 —
 
-Special thanks to
+❤️ Special thanks to  
 - [@fscholdei](https://github.com/fscholdei) for the German translation
 - [@Thaoh](https://github.com/Thaoh) for the Norwegian translation and the URL custom background feature
